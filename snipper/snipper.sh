@@ -19,6 +19,11 @@ BASE_API_URI='https://api.bitbucket.org/2.0'
 CLONE_REPO_WITH_SSH=1
 
 
+bold=$(tput bold)
+reset=$(tput sgr0)
+green=$(tput setaf 2)
+blue=$(tput setaf 4)
+
 function help {
 cat << EOF
 Usage of $0:
@@ -52,7 +57,7 @@ function cloneGitSnippet {
 function updateGitSnippets {
     # Pull new changes from remote.
     for dir in $SNIPPET_DIR/*/*/ ; do
-        echo "Updating: $dir"
+        echo -e "$green Updating: $reset $dir"
         git --git-dir=$dir/.git pull > /dev/null 2>&1
     done
 }
@@ -79,7 +84,7 @@ function syncSnippets {
 
         if [ ! -d $cloneTo ]; then
             title=$(echo $fileContent | jq -r --arg i "$i" ".values[$i].title")
-            echo "[Downloading Snippet]: $title"
+            echo -e "$green [Downloading Snippet]: $reset $title"
             cloneGitSnippet $cloneUri $cloneTo
         fi
 
@@ -92,10 +97,12 @@ function listRemoteSnippets {
     tmpFile=$(downloadResource "$BASE_API_URI/snippets/$USERNAME")
     fileContent=$(cat $tmpFile)
     i=0
-    echo $fileContent | jq -r '.values[] | "[" + .id + "] " + .title' | \
-    while read item
+    echo $fileContent | jq -r '.values[] | .title' | \
+    while read title
     do
-        echo "$item"
+        snippetId=$(echo $fileContent | jq -r ".values[$i].id")
+        echo "$green [$snippetId] $reset $title"
+
         i=${i+1}
     done
 }
