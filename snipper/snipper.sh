@@ -16,7 +16,7 @@ SNIPPET_DIR="$HOME/.snippets"
 BASE_API_URI='https://api.bitbucket.org/2.0'
 
 # Set 0 for https
-CLONE_WITH_SSH=1
+CLONE_REPO_WITH_SSH=1
 
 
 function help {
@@ -64,38 +64,38 @@ function syncSnippets {
     tmpFile=$(downloadResource "$BASE_API_URI/snippets/$USERNAME")
     fileContent=$(cat $tmpFile)
 
+    updateGitSnippets
+
     i=0
-    echo $fileContent | jq -r ".values[].links.clone[$CLONE_WITH_SSH].href" | \
+    echo $fileContent | jq -r ".values[].links.clone[$CLONE_REPO_WITH_SSH].href" | \
     while read cloneUri
      do
-        snippetId=$(echo $fileContent | jq -r --arg i "$i" ".values[$i].id")
-        snippetOwner=$(echo $fileContent | jq -r --arg i "$i" ".values[$i].owner.username")
+        snippetId=$(echo $fileContent | jq -r ".values[$i].id")
+        snippetOwner=$(echo $fileContent | jq -r ".values[$i].owner.username")
 
-        # Dont use title because title changable from web
-        #title=$(echo $fileContent | jq -r --arg i "$i" ".values[$i].title")
-        #title=$(slugify $title)
+        # Dont use title for directory naming
+        # because title changable from web
         cloneTo="$SNIPPET_DIR/$snippetOwner/$snippetId"
 
         if [ ! -d $cloneTo ]; then
-            echo "Downloading new snippet from bitbucket: $title"
+            title=$(echo $fileContent | jq -r --arg i "$i" ".values[$i].title")
+            echo "[Downloading Snippet]: $title"
             cloneGitSnippet $cloneUri $cloneTo
-        else
-            updateGitSnippets
         fi
 
         i=${i+1}
     done
+
 }
 
 function listRemoteSnippets {
     tmpFile=$(downloadResource "$BASE_API_URI/snippets/$USERNAME")
     fileContent=$(cat $tmpFile)
     i=0
-    echo $fileContent | jq -r ".values[].title" | \
-    while read title
+    echo $fileContent | jq -r '.values[] | "[" + .id + "] " + .title' | \
+    while read item
     do
-        snippetId=$(echo $fileContent | jq -r --arg i "$i" ".values[$i].id")
-        echo "[$snippetId] $title"
+        echo "$item"
         i=${i+1}
     done
 }
@@ -109,11 +109,11 @@ case $1 in
     shift # past argument
     ;;
     ls)
-    ACTION='list'
+    listRemoteSnippets
     shift # past argument
     ;;
     sync)
-    ACTION='sync'
+    syncSnippets
     shift # past argument
     ;;
     *)
@@ -122,17 +122,3 @@ case $1 in
 esac
 shift # past argument or value
 done
-
-echo $ACTION
-
-case $ACTION in
-    'list')
-        listRemoteSnippets
-        ;;
-    'sync')
-        syncSnippets
-        ;;
-    'find')
-        echo 'FIND FILES'
-        ;;
-esac
