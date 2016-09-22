@@ -1,6 +1,15 @@
 #!/bin/bash
+
+
 USERNAME=$BITBUCKET_USER
 PASSWORD=$BITBUCKET_PASSWORD
+
+# Bitbucket offer only http basic authentication(user/password) method.
+# Not offering token authentication for now.
+# You can create a app password on
+# Bitbucket > Settings > App passwords
+# permitted for only snippets.
+# Use the password for using Bitbucket API.
 
 SNIPPET_DIR="$HOME/.snippets"
 
