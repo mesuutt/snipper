@@ -46,14 +46,14 @@ function downloadResource {
 }
 
 function cloneGitSnippet {
-    git clone $1 $2
+    git clone $1 $2 > /dev/null 2>&1
 }
 
 function updateGitSnippets {
-    #echo $cloneDir
+    # Pull new changes from remote.
     for dir in $SNIPPET_DIR/*/*/ ; do
         echo "Updating: $dir"
-        git --git-dir=$dir/.git pull
+        git --git-dir=$dir/.git pull > /dev/null 2>&1
     done
 }
 
