@@ -2,15 +2,18 @@ import os
 from os import path
 import json
 import getpass
+import glob
 import logging
 import sys
-
+import re
 import click
 
 from api import Snippet
+from repo import Repo
 
 DEFAULT_SNIPPER_HOME = path.expanduser('~/.snippets')
 DEFAULT_SNIPPER_CONFIG = path.join(DEFAULT_SNIPPER_HOME, 'config.json')
+SNIPPET_METADATA_FILE = path.join(DEFAULT_SNIPPER_HOME, 'metadata.json')
 
 
 logger = logging.getLogger('snipper')
@@ -45,6 +48,7 @@ class SnipperConfig(object):
 
     def file_exists(self):
         return path.exists(self.file)
+
 
 pass_config = click.make_pass_decorator(SnipperConfig)
 
@@ -110,7 +114,50 @@ def list_snippets(context, config,  **kwargs):
     click.echo('List snippets')
 
 
+@cli.command(name='update')
+@pass_config
+@click.pass_context
+def update_local_snippets(context, config, **kwargs):
+    """
+    Update local snippets from Bitbucket.
+    Pull existing snippets change and clone new snippets if exists.
+    """
 
+    api = Snippet()
+    api.set_config(config)
+    res = api.get_all()
+
+    with open(path.join(SNIPPET_METADATA_FILE), 'w') as f:
+        f.write(json.dumps(res))
+
+    for item in res['values']:
+        owner_username = item['owner']['username']
+        snippet_id = item['id']
+        repo_parent = path.join(DEFAULT_SNIPPER_HOME, owner_username)
+
+        # Find snippet dirs which ends with specified snippet_id for checking
+        # snippet cloned before
+
+        # If directory name which end with snippet_id exist pull changes
+        repo_path = glob.glob(path.join(repo_parent, '*{}'.format(snippet_id)))[0]
+        if repo_path:
+            Repo.pull(repo_path)
+        else:
+            # Clone repo over ssh (1)
+            clone_url = item['links']['clone'][1]['href']
+            clone_to = path.join(repo_parent, snippet_id)
+
+            if item['title']:
+                # Create dir name for snippet for clonning
+                # Using title for best readablity(<slugified snippet_title>-<snippet_id>)
+                slugified_title = re.sub('\W+', '-', item['title']).lower()
+                clone_to = path.join(repo_parent, "{}-{}".format(slugified_title, snippet_id))
+
+
+            Repo.clone(clone_url, clone_to=clone_to)
+
+
+    click.echo('Pull snippets')
 
 
 if __name__ == '__main__':
