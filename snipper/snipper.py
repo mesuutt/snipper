@@ -42,7 +42,7 @@ class SnipperConfig(object):
 
     def save_to_file(self):
         with open(self.file, 'w') as f:
-            f.write(json.dumps(self.config))
+            f.write(json.dumps(self.config, indent=4))
 
         logger.info('Config file updated: {}'.format(self.file))
 
