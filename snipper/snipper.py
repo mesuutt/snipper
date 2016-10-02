@@ -23,10 +23,13 @@ logger.addHandler(ch)
 
 
 class SnipperConfig(object):
+    verbose_short = 'short'
+    verbose_detailed = 'detailed'
 
     def __init__(self, file):
         self.file = file
         self.config = {}
+        self.config['verbose'] = self.verbose_short
 
         with open(self.file, 'r') as f:
             conf_content = json.loads(f.read())
@@ -104,16 +107,39 @@ def init_snipper(home):
     config.set('snippet_home', home)
     config.set('username', username)
     config.set('password', password)
+    config.set('verbose', SnipperConfig.verbose_detailed)
+
     config.save_to_file()
 
 
 @cli.command(name='ls')
+@click.option('-v', 'verbose', flag_value=SnipperConfig.verbose_short, help='Provides short listing')
+@click.option('-vv', 'verbose', flag_value=SnipperConfig.verbose_detailed, help='Provides the most detailed listing')
 @pass_config
 @click.pass_context
-def list_snippets(context, config,  **kwargs):
+def list_snippets(context, config,  verbose,**kwargs):
     """ List local snippets """
-    click.echo('List snippets')
-
+    config.verbose = verbose
+    print(verbose)
+    with open(path.join(SNIPPET_METADATA_FILE), 'r') as f:
+        data = json.loads(f.read())
+        for item in data['values']:
+            snippet_id = item['id']
+            snippet_title = item['title']
+            line = '[{id}] {title}'.format(
+                id=snippet_id,
+                title=snippet_title,
+            )
+            click.secho(line, fg='green')
+            
+            if verbose == SnipperConfig.verbose_detailed:
+                # Show files in snippet
+                repo_parent = path.join(DEFAULT_SNIPPER_HOME, item['owner']['username'])
+                repo_path = glob.glob(path.join(repo_parent, '*{}'.format(snippet_id)))[0]
+                if repo_path:
+                    onlyfiles = [f for f in os.listdir(repo_path) if path.isfile(path.join(repo_path, f))]
+                    for file_name in onlyfiles:
+                        click.secho("\t {}".format(file_name))
 
 @cli.command(name='update')
 @pass_config
