@@ -131,15 +131,14 @@ def list_snippets(context, config,  verbose,**kwargs):
                 title=snippet_title,
             )
             click.secho(line, fg='green')
-            
+
             if verbose == SnipperConfig.verbose_detailed:
                 # Show files in snippet
-                repo_parent = path.join(DEFAULT_SNIPPER_HOME, item['owner']['username'])
-                repo_path = glob.glob(path.join(repo_parent, '*{}'.format(snippet_id)))[0]
-                if repo_path:
-                    onlyfiles = [f for f in os.listdir(repo_path) if path.isfile(path.join(repo_path, f))]
-                    for file_name in onlyfiles:
-                        click.secho("\t {}".format(file_name))
+                repo = Repo(config, item['owner']['username'], snippet_id)
+
+                onlyfiles = repo.get_files()
+                for file_name in onlyfiles:
+                    click.secho("\t {}".format(file_name))
 
 @cli.command(name='update')
 @pass_config
