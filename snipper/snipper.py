@@ -159,7 +159,7 @@ def update_local_snippets(context, config, **kwargs):
             Repo.clone(clone_url, clone_to=clone_to)
 
 
-    click.echo('Pull snippets')
+    click.echo('Local snippets updated and new snippets downloaded from Bitbucket')
 
 
 if __name__ == '__main__':
