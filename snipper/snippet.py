@@ -27,6 +27,8 @@ class Snippet(object):
         subprocess.call(['git', '--git-dir={}/.git'.format(repo_dir), 'pull'])
 
     def get_files(self):
+        """ Return files of snippet """
+
         metadata_file = path.join(self.config.get('snippet_home'), 'metadata.json')
         with open(metadata_file, 'r') as f:
             data = json.loads(f.read())
