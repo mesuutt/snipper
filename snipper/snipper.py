@@ -180,7 +180,7 @@ def update_local_snippets(context, config, **kwargs):
                 clone_to = path.join(repo_parent, "{}-{}".format(slugified_title, snippet_id))
 
 
-            Repo.clone(clone_url, clone_to=clone_to)
+            Snippet.clone(clone_url, clone_to=clone_to)
 
 
     click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='green')
