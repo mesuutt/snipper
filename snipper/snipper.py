@@ -114,7 +114,7 @@ def init_snipper(home):
 
 @cli.command(name='ls')
 @click.option('-v', 'verbose', flag_value=SnipperConfig.verbose_short, help='Provides short listing')
-@click.option('-vv', 'verbose', flag_value=SnipperConfig.verbose_detailed, help='Provides the most detailed listing')
+@click.option('-vv', 'verbose', default=True,  flag_value=SnipperConfig.verbose_detailed, help='Provides the most detailed listing')
 @pass_config
 @click.pass_context
 def list_snippets(context, config,  verbose,**kwargs):
