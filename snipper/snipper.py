@@ -81,7 +81,11 @@ def init_snipper(home):
 
     home = click.prompt('Where to keep snippets on local', default=home)
     username = click.prompt('Bitbucket username')
-    click.echo('Password using for authenticating to Bitbucket API. You can create an app password for on Bitbucket account settings page.')
+    click.secho(
+        """Password using for authenticating to Bitbucket API.
+        You can create an app password on Bitbucket account settings page.""",
+        fg='green')
+
     password = getpass.getpass('Bitbucket Password:')
 
     # Create snippet home dir
@@ -159,7 +163,7 @@ def update_local_snippets(context, config, **kwargs):
             Repo.clone(clone_url, clone_to=clone_to)
 
 
-    click.echo('Local snippets updated and new snippets downloaded from Bitbucket')
+    click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='green')
 
 
 if __name__ == '__main__':
