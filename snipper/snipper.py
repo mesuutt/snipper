@@ -8,8 +8,8 @@ import sys
 import re
 import click
 
-from api import Snippet
-from repo import Repo
+from api import SnippetApi
+from snippet import Snippet
 
 DEFAULT_SNIPPER_HOME = path.expanduser('~/.snippets')
 DEFAULT_SNIPPER_CONFIG = path.join(DEFAULT_SNIPPER_HOME, 'config.json')
@@ -74,7 +74,7 @@ def cli(ctx, home, config_file, **kwargs):
 
     ctx.obj = config
 
-    api = Snippet()
+    api = SnippetApi()
     api.set_config(config)
 
 
@@ -134,9 +134,9 @@ def list_snippets(context, config,  verbose,**kwargs):
 
             if verbose == SnipperConfig.verbose_detailed:
                 # Show files in snippet
-                repo = Repo(config, item['owner']['username'], snippet_id)
+                snippet = Snippet(config, item['owner']['username'], snippet_id)
 
-                onlyfiles = repo.get_files()
+                onlyfiles = snippet.get_files()
                 for file_name in onlyfiles:
                     click.secho("\t {}".format(file_name))
 
@@ -149,7 +149,7 @@ def update_local_snippets(context, config, **kwargs):
     Pull existing snippets change and clone new snippets if exists.
     """
 
-    api = Snippet()
+    api = SnippetApi()
     api.set_config(config)
     res = api.get_all()
 
@@ -167,7 +167,7 @@ def update_local_snippets(context, config, **kwargs):
         # If directory name which end with snippet_id exist pull changes
         repo_path = glob.glob(path.join(repo_parent, '*{}'.format(snippet_id)))[0]
         if repo_path:
-            Repo.pull(repo_path)
+            Snippet.pull(repo_path)
         else:
             # Clone repo over ssh (1)
             clone_url = item['links']['clone'][1]['href']

@@ -23,7 +23,7 @@ class BitbucketApi(object):
         return os.path.join(self.base_url, endpoint)
 
 
-class Snippet(BitbucketApi):
+class SnippetApi(BitbucketApi):
     base_url = '{}/snippets'.format(BASE_URL)
 
     def get_all(self):

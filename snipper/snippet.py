@@ -5,7 +5,7 @@ import json
 import subprocess
 
 
-class Repo(object):
+class Snippet(object):
 
     def __init__(self, config, username, snippet_id):
         self.config = config
