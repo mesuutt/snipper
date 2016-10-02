@@ -63,6 +63,7 @@ def cli(ctx, home, config_file, **kwargs):
     # this point onwards other commands can refer to it by using the
     # @pass_config decorator.
     if not path.exists(config_file):
+        click.secho('Configuration file not found. Plase give me your settings.', fg='red')
         init_snipper(home=home)
 
     config = SnipperConfig(config_file)
@@ -104,12 +105,6 @@ def init_snipper(home):
     config.set('username', username)
     config.set('password', password)
     config.save_to_file()
-
-@cli.command(name='init')
-@click.option('--home', default=DEFAULT_SNIPPER_HOME, type=click.Path())
-def init(home, **kwargs):
-    """ Initialize snipper"""
-    init_snipper(home)
 
 
 @cli.command(name='ls')
