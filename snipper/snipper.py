@@ -76,6 +76,8 @@ def cli(ctx, home, config_file, **kwargs):
 
 def init_snipper(home):
     config_file = path.join(home, 'config.json')
+    if path.exists(config_file) and not click.confirm('Config file already exist. Overwrite it'):
+        return
 
     home = click.prompt('Where to keep snippets on local', default=home)
     username = click.prompt('Bitbucket username')
