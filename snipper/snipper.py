@@ -104,15 +104,15 @@ def init_snipper(home):
 @cli.command(name='init')
 @click.option('--home', default=DEFAULT_SNIPPER_HOME, type=click.Path())
 def init(home, **kwargs):
+    """ Initialize snipper"""
     init_snipper(home)
-
 
 
 @cli.command(name='ls')
 @pass_config
 @click.pass_context
 def list_snippets(context, config,  **kwargs):
-
+    """ List local snippets """
     click.echo('List snippets')
 
 
