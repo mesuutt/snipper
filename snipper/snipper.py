@@ -57,8 +57,8 @@ pass_config = click.make_pass_decorator(SnipperConfig)  # pylint: disable-msg=C0
 
 
 @click.group()
-@click.option('--home', default=DEFAULT_SNIPPER_HOME, type=click.Path())
-@click.option('--config-file', default=DEFAULT_SNIPPER_CONFIG, type=click.Path())
+@click.option('--home', default=DEFAULT_SNIPPER_HOME, type=click.Path(), help='Snippet directory path. ({})'.format(DEFAULT_SNIPPER_HOME))
+@click.option('--config-file', default=DEFAULT_SNIPPER_CONFIG, type=click.Path(), help='Snipper config.json file path. ({})'.format(DEFAULT_SNIPPER_CONFIG))
 @click.pass_context
 def cli(ctx, home, config_file, **kwargs): # pylint: disable-msg=W0613
 
