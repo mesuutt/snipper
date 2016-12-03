@@ -17,7 +17,7 @@ SNIPPET_METADATA_FILE = path.join(DEFAULT_SNIPPER_HOME, 'metadata.json')
 
 
 logger = logging.getLogger('snipper')
-logger.setLevel(logging.DEBUG) #TODO: set with --verbose param
+logger.setLevel(logging.DEBUG)  # TODO: set with --verbose param
 ch = logging.StreamHandler(sys.stdout)
 logger.addHandler(ch)
 
@@ -31,8 +31,8 @@ class SnipperConfig(object):
         self.config = {}
         self.config['verbose'] = self.verbose_short
 
-        with open(self.file, 'r') as f:
-            conf_content = json.loads(f.read())
+        with open(self.file, 'r') as file:
+            conf_content = json.loads(file.read())
 
         for key, value in conf_content.items():
             self.config[key] = value
@@ -44,27 +44,28 @@ class SnipperConfig(object):
         self.config[key] = value
 
     def save_to_file(self):
-        with open(self.file, 'w') as f:
-            f.write(json.dumps(self.config, indent=4))
+        with open(self.file, 'w') as file:
+            file.write(json.dumps(self.config, indent=4))
 
-        logger.info('Config file updated: {}'.format(self.file))
+        logger.info('Config file updated: %s', self.file)
 
     def file_exists(self):
         return path.exists(self.file)
 
 
-pass_config = click.make_pass_decorator(SnipperConfig)
+pass_config = click.make_pass_decorator(SnipperConfig)  # pylint: disable-msg=C0103
 
 
 @click.group()
 @click.option('--home', default=DEFAULT_SNIPPER_HOME, type=click.Path())
 @click.option('--config-file', default=DEFAULT_SNIPPER_CONFIG, type=click.Path())
 @click.pass_context
-def cli(ctx, home, config_file, **kwargs):
+def cli(ctx, home, config_file, **kwargs): # pylint: disable-msg=W0613
 
     # Create a SnippetConfig object and remember it as as the context object.  From
     # this point onwards other commands can refer to it by using the
     # @pass_config decorator.
+
     if not path.exists(config_file):
         click.secho('Configuration file not found. Plase give me your settings.', fg='red')
         init_snipper(home=home)
@@ -87,7 +88,8 @@ def init_snipper(home):
     username = click.prompt('Bitbucket username')
     click.secho(
         """Password using for authenticating to Bitbucket API.
-        You can create an app password on Bitbucket account settings page.""",
+        You can create an App Password on Bitbucket settings page.
+        """,
         fg='green')
 
     password = getpass.getpass('Bitbucket Password:')
@@ -99,9 +101,8 @@ def init_snipper(home):
     # Create config file
 
     if not path.exists(config_file):
-        with open(config_file, 'w+') as f:
-            f.write('{}')
-
+        with open(config_file, 'w+') as file:
+            file.write('{}')
 
     config = SnipperConfig(config_file)
     config.set('snippet_home', home)
@@ -114,15 +115,21 @@ def init_snipper(home):
 
 @cli.command(name='ls')
 @click.option('-v', 'verbose', flag_value=SnipperConfig.verbose_short, help='Provides short listing')
-@click.option('-vv', 'verbose', default=True,  flag_value=SnipperConfig.verbose_detailed, help='Provides the most detailed listing')
+@click.option(
+    '-vv',
+    'verbose',
+    default=True,
+    flag_value=SnipperConfig.verbose_detailed,
+    help='Provides the most detailed listing'
+)
 @pass_config
 @click.pass_context
-def list_snippets(context, config,  verbose,**kwargs):
-    """ List local snippets """
+def list_snippets(context, config, verbose, **kwargs):
+    """List local snippets"""
     config.verbose = verbose
     print(verbose)
-    with open(path.join(SNIPPET_METADATA_FILE), 'r') as f:
-        data = json.loads(f.read())
+    with open(path.join(SNIPPET_METADATA_FILE), 'r') as file:
+        data = json.loads(file.read())
         for item in data['values']:
             snippet_id = item['id']
             snippet_title = item['title']
@@ -140,6 +147,7 @@ def list_snippets(context, config,  verbose,**kwargs):
                 for file_name in onlyfiles:
                     click.secho("\t {}".format(file_name))
 
+
 @cli.command(name='update')
 @pass_config
 @click.pass_context
@@ -153,8 +161,8 @@ def update_local_snippets(context, config, **kwargs):
     api.set_config(config)
     res = api.get_all()
 
-    with open(path.join(SNIPPET_METADATA_FILE), 'w') as f:
-        f.write(json.dumps(res))
+    with open(path.join(SNIPPET_METADATA_FILE), 'w') as file:
+        file.write(json.dumps(res))
 
     for item in res['values']:
         owner_username = item['owner']['username']
@@ -176,12 +184,10 @@ def update_local_snippets(context, config, **kwargs):
             if item['title']:
                 # Create dir name for snippet for clonning
                 # Using title for best readablity(<slugified snippet_title>-<snippet_id>)
-                slugified_title = re.sub('\W+', '-', item['title']).lower()
+                slugified_title = re.sub(r'\W+', '-', item['title']).lower()
                 clone_to = path.join(repo_parent, "{}-{}".format(slugified_title, snippet_id))
 
-
             Snippet.clone(clone_url, clone_to=clone_to)
-
 
     click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='green')
 
