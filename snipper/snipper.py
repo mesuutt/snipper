@@ -183,13 +183,14 @@ def update_local_snippets(context, config, **kwargs):
 
             if item['title']:
                 # Create dir name for snippet for clonning
-                # Using title for best readablity(<slugified snippet_title>-<snippet_id>)
+                # Using title for readablity(<slugified snippet_title>-<snippet_id>)
+
                 slugified_title = re.sub(r'\W+', '-', item['title']).lower()
                 clone_to = path.join(repo_parent, "{}-{}".format(slugified_title, snippet_id))
 
             Snippet.clone(clone_url, clone_to=clone_to)
 
-    click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='green')
+    click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
 
 
 if __name__ == '__main__':
