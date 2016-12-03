@@ -173,9 +173,9 @@ def update_local_snippets(context, config, **kwargs):
         # snippet cloned before
 
         # If directory name which end with snippet_id exist pull changes
-        repo_path = glob.glob(path.join(repo_parent, '*{}'.format(snippet_id)))[0]
-        if repo_path:
-            Snippet.pull(repo_path)
+        matched_pats = glob.glob(path.join(repo_parent, '*{}'.format(snippet_id)))
+        if matched_pats:
+            Snippet.pull(matched_pats[0])
         else:
             # Clone repo over ssh (1)
             clone_url = item['links']['clone'][1]['href']
