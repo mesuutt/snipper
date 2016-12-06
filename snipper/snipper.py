@@ -12,7 +12,7 @@ from prompt_toolkit import prompt
 
 from api import SnippetApi
 from snippet import Snippet
-from completer import PathCompleter
+from completer import SnippetFilesCompleter, SnippetDirCompleter
 
 DEFAULT_SNIPPER_HOME = path.expanduser('~/.snippets')
 DEFAULT_SNIPPER_CONFIG = path.join(DEFAULT_SNIPPER_HOME, 'config.json')
@@ -192,12 +192,29 @@ def update_local_snippets(context, config, **kwargs):
 
     click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
 
-@cli.command(name='edit')
+
+def _open_snippet(ctx, param, relative_path):
+    """Open snippet file with default editor"""
+
+    if not relative_path or ctx.resilient_parsing:
+        return
+
+    file_path = os.path.join(ctx.obj.get('snippet_home'), relative_path)
+
+    if os.path.exists(file_path):
+        click.edit(filename=file_path)
+    else:
+        click.secho('File not exist. Exiting ...', fg='red')
+
+    ctx.exit()
+
+@cli.command(name='edit', help='Edit snippet')
+@click.option('--fuzzy', is_flag=True, default=True, help='Open fuzzy file finder')
+@click.argument('FILE', type=click.Path(), required=False, is_eager=True, expose_value=False, callback=_open_snippet)
 @pass_config
 @click.pass_context
-def update_local_snippets(context, config, **kwargs):
-
-    selected_file = prompt('[Fuzzy file finder] > ', completer=PathCompleter(config))
+def update_local_snippets(context, config, file_path='', **kwargs):
+    selected_file = prompt('[Fuzzy file finder] > ', completer=SnippetFilesCompleter(config))
     file_path = os.path.join(config.get('snippet_home'), selected_file)
 
     click.edit(filename=file_path)
