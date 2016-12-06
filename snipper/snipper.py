@@ -148,10 +148,10 @@ def list_snippets(context, config, verbose, **kwargs):
                     click.secho(os.path.join(item['owner']['username'], snippet_dir, file_name))
 
 
-@cli.command(name='update')
+@cli.command(name='pull')
 @pass_config
 @click.pass_context
-def update_local_snippets(context, config, **kwargs):
+def pull_local_snippets(context, config, **kwargs):
     """
     Update local snippets from Bitbucket.
     Pull existing snippets change and clone new snippets if exists.
