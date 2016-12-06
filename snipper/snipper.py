@@ -141,11 +141,11 @@ def list_snippets(context, config, verbose, **kwargs):
             if verbose == SnipperConfig.verbose_detailed:
                 # Show files in snippet
                 snippet = Snippet(config, item['owner']['username'], snippet_id)
-                file_path_relative = os.path.split(snippet.repo_path)[1]
+                snippet_dir = os.path.split(snippet.repo_path)[1]
 
                 onlyfiles = snippet.get_files()
                 for file_name in onlyfiles:
-                    click.secho(os.path.join(item['owner']['username'], file_path_relative, file_name))
+                    click.secho(os.path.join(item['owner']['username'], snippet_dir, file_name))
 
 
 @cli.command(name='update')
