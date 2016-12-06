@@ -6,10 +6,13 @@ import glob
 import logging
 import sys
 import re
+
 import click
+from prompt_toolkit import prompt
 
 from api import SnippetApi
 from snippet import Snippet
+from completer import PathCompleter
 
 DEFAULT_SNIPPER_HOME = path.expanduser('~/.snippets')
 DEFAULT_SNIPPER_CONFIG = path.join(DEFAULT_SNIPPER_HOME, 'config.json')
@@ -72,6 +75,7 @@ def cli(ctx, home, config_file, **kwargs): # pylint: disable-msg=W0613
 
     config = SnipperConfig(config_file)
     config.set('snippet_home', home)
+    config.set('metadata_file', SNIPPET_METADATA_FILE)
 
     ctx.obj = config
 
@@ -127,7 +131,7 @@ def init_snipper(home):
 def list_snippets(context, config, verbose, **kwargs):
     """List local snippets"""
     config.verbose = verbose
-    print(verbose)
+
     with open(path.join(SNIPPET_METADATA_FILE), 'r') as file:
         data = json.loads(file.read())
         for item in data['values']:
@@ -188,6 +192,15 @@ def update_local_snippets(context, config, **kwargs):
 
     click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
 
+@cli.command(name='edit')
+@pass_config
+@click.pass_context
+def update_local_snippets(context, config, **kwargs):
+
+    selected_file = prompt('[Fuzzy file finder] > ', completer=PathCompleter(config))
+    file_path = os.path.join(config.get('snippet_home'), selected_file)
+
+    click.edit(filename=file_path)
 
 if __name__ == '__main__':
     cli()
