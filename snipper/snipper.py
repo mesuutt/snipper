@@ -208,12 +208,12 @@ def _open_snippet(ctx, param, relative_path):
 
     ctx.exit()
 
-@cli.command(name='edit', help='Edit snippet')
+@cli.command(name='edit', help='Edit snippet file')
 @click.option('--fuzzy', is_flag=True, default=True, help='Open fuzzy file finder')
-@click.argument('FILE', type=click.Path(), required=False, is_eager=True, expose_value=False, callback=_open_snippet)
+@click.argument('FILE_PATH', type=click.Path(), required=False, is_eager=True, expose_value=False, callback=_open_snippet)
 @pass_config
 @click.pass_context
-def update_local_snippets(context, config, file_path='', **kwargs):
+def edit_snippet_file(context, config, file_path=None, **kwargs):
     selected_file = prompt('[Fuzzy file finder] > ', completer=SnippetFilesCompleter(config))
     file_path = os.path.join(config.get('snippet_home'), selected_file)
 
