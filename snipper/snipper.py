@@ -5,7 +5,6 @@ import getpass
 import glob
 import logging
 import sys
-import re
 
 import click
 from prompt_toolkit import prompt
@@ -13,6 +12,7 @@ from prompt_toolkit import prompt
 from api import SnippetApi
 from snippet import Snippet
 from completer import SnippetFilesCompleter, SnippetDirCompleter
+import utils
 
 DEFAULT_SNIPPER_HOME = path.expanduser('~/.snippets')
 DEFAULT_SNIPPER_CONFIG = path.join(DEFAULT_SNIPPER_HOME, 'config.json')
@@ -50,7 +50,7 @@ class SnipperConfig(object):
         with open(self.file, 'w') as file:
             file.write(json.dumps(self.config, indent=4))
 
-        logger.info('Config file updated: %s', self.file)
+        click.secho('Config file updated: {}'.format(self.file), fg='green')
 
     def file_exists(self):
         return path.exists(self.file)
@@ -79,9 +79,6 @@ def cli(ctx, home, config_file, **kwargs): # pylint: disable-msg=W0613
 
     ctx.obj = config
 
-    api = SnippetApi()
-    api.set_config(config)
-
 
 def init_snipper(home):
     config_file = path.join(home, 'config.json')
@@ -94,7 +91,7 @@ def init_snipper(home):
         """Password using for authenticating to Bitbucket API.
         You can create an App Password on Bitbucket settings page.
         """,
-        fg='green')
+        fg='blue')
 
     password = getpass.getpass('Bitbucket Password:')
 
@@ -135,17 +132,21 @@ def list_snippets(context, config, verbose, **kwargs):
     with open(path.join(SNIPPET_METADATA_FILE), 'r') as file:
         data = json.loads(file.read())
         for item in data['values']:
-            snippet_id = item['id']
-            snippet_title = item['title']
 
             if verbose == SnipperConfig.verbose_detailed:
                 # Show files in snippet
-                snippet = Snippet(config, item['owner']['username'], snippet_id)
-                snippet_dir = os.path.split(snippet.repo_path)[1]
+                snippet = Snippet(config, item['owner']['username'], item['id'])
+                snippet_path = snippet.get_path()
+
+                if not snippet_path:
+                    msg = '[{}] Snippet does not exist in file system. Please `pull` changes'
+                    click.secho(msg.format(item['id']), fg='red')
+
+                    continue
 
                 onlyfiles = snippet.get_files()
                 for file_name in onlyfiles:
-                    click.secho(os.path.join(item['owner']['username'], snippet_dir, file_name))
+                    click.secho(os.path.join(item['owner']['username'], snippet_path, file_name))
 
 
 @cli.command(name='pull')
@@ -165,6 +166,7 @@ def pull_local_snippets(context, config, **kwargs):
         file.write(json.dumps(res))
 
     for item in res['values']:
+
         owner_username = item['owner']['username']
         snippet_id = item['id']
         repo_parent = path.join(DEFAULT_SNIPPER_HOME, owner_username)
@@ -172,28 +174,17 @@ def pull_local_snippets(context, config, **kwargs):
         # Find snippet dirs which ends with specified snippet_id for checking
         # snippet cloned before
 
-        # If directory name which end with snippet_id exist pull changes
+        # If directory name which end with snippet_id exist, pull changes
         matched_pats = glob.glob(path.join(repo_parent, '*{}'.format(snippet_id)))
         if matched_pats:
             Snippet.pull(matched_pats[0])
         else:
-            # Clone repo over ssh (1)
-            clone_url = item['links']['clone'][1]['href']
-            clone_to = path.join(repo_parent, snippet_id)
-
-            if item['title']:
-                # Create dir name for snippet for clonning
-                # Using title for readablity(<slugified snippet_title>-<snippet_id>)
-
-                slugified_title = re.sub(r'\W+', '-', item['title']).lower()
-                clone_to = path.join(repo_parent, "{}-{}".format(slugified_title, snippet_id))
-
-            Snippet.clone(clone_url, clone_to=clone_to)
+            Snippet.clone_by_snippet_id(config, snippet_id)
 
     click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
 
 
-def _open_snippet(ctx, param, relative_path):
+def _open_snippet_file(ctx, param, relative_path):
     """Open snippet file with default editor"""
 
     if not relative_path or ctx.resilient_parsing:
@@ -210,7 +201,7 @@ def _open_snippet(ctx, param, relative_path):
 
 @cli.command(name='edit', help='Edit snippet file')
 @click.option('--fuzzy', is_flag=True, default=True, help='Open fuzzy file finder')
-@click.argument('FILE_PATH', type=click.Path(), required=False, is_eager=True, expose_value=False, callback=_open_snippet)
+@click.argument('FILE_PATH', type=click.Path(), required=False, is_eager=True, expose_value=False, callback=_open_snippet_file)
 @pass_config
 @click.pass_context
 def edit_snippet_file(context, config, file_path=None, **kwargs):
@@ -223,11 +214,43 @@ def edit_snippet_file(context, config, file_path=None, **kwargs):
 @click.option('--title', help='Snippet title', prompt='Snippet title')
 @click.option('--filename', help='File name', default='note.md', prompt='File name')
 @click.option('--private/--public', default=True, prompt='Private snippet', help='Make private/public snippet')
-@click.option('--git/--mercurial', default=True,  prompt='Use git(n for mercurial)',  help='Use git/mercurial for snippet repo')
+@click.option('--hg/--git', default=True, prompt='Use mercurial(n for git)', help='Choice scm. Default hg')
 @pass_config
 @click.pass_context
 def new_snippet(context, config, **kwargs):
     pass
+
+@cli.command(name='add', help='Create new snippet from file[s]')
+@click.option('--title', help='Snippet title', prompt='Snippet title')
+@click.option('--private/--public', default=True, prompt='Private snippet', help='Make private/public snippet')
+@click.option('--hg/--git', default=True, prompt='Use mercurial(n for git)', help='Choice scm. Default hg')
+@click.option('--file', help='Create snippet from file', multiple=True)
+@pass_config
+@click.pass_context
+def add_snippet(context, config, **kwargs):
+
+    api = SnippetApi()
+    api.set_config(config)
+
+    scm = 'hg' if kwargs.get('hg') else 'git'
+
+    click.secho('Snippet creating...', fg='blue')
+
+    response = api.create_snippet(
+        utils.open_files(kwargs.get('file')),
+        kwargs.get('private', False),
+        kwargs.get('title', None),
+        scm,
+    )
+
+    if response.ok:
+        snippet_metadata = response.json()
+
+        Snippet.add_snippet_metadata(config, snippet_metadata)
+        Snippet.clone_by_snippet_id(config, snippet_metadata['id'])
+
+    click.secho('New snippets cloned from Bitbucket', fg='green')
+
 
 if __name__ == '__main__':
     cli()
