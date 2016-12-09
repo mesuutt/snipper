@@ -205,7 +205,7 @@ def _open_snippet_file(ctx, param, relative_path):
 @pass_config
 @click.pass_context
 def edit_snippet_file(context, config, file_path=None, **kwargs):
-    selected_file = prompt('[Fuzzy file finder] > ', completer=SnippetFilesCompleter(config))
+    selected_file = prompt('[Add/Edit file] > ', completer=SnippetFilesCompleter(config))
     file_path = os.path.join(config.get('snippet_home'), selected_file)
 
     click.edit(filename=file_path)

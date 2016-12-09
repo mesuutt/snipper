@@ -49,3 +49,37 @@ class PathCompleter(Completer):
                 suggestions.append((len(match.group()), match.start(), item))
 
         return [x for _, _, x in sorted(suggestions)]
+
+
+class SnippetFilesCompleter(PathCompleter):
+
+    def __init__(self, config):
+        super(SnippetFilesCompleter, self).__init__()
+
+        with open(os.path.join(config.config.get('metadata_file')), 'r') as file:
+            data = json.loads(file.read())
+            for item in data['values']:
+                snippet_id = item['id']
+                snippet = Snippet(config, item['owner']['username'], snippet_id)
+                if not snippet.get_path():
+                    continue
+
+                file_dir = os.path.split(snippet.get_path())[1]
+                for file_name in snippet.get_files():
+                    file_path_relative = os.path.join(item['owner']['username'], file_dir, file_name)
+                    self.collection.append(file_path_relative)
+
+
+class SnippetDirCompleter(PathCompleter):
+
+    def __init__(self, config):
+        super(SnippetDirCompleter, self).__init__()
+
+        with open(os.path.join(config.config.get('metadata_file')), 'r') as file:
+            data = json.loads(file.read())
+            for item in data['values']:
+                snippet_id = item['id']
+                snippet = Snippet(config, item['owner']['username'], snippet_id)
+                snippet_dir_name = os.path.split(snippet.repo_path)[1]
+
+                self.collection.append(os.path.join(item['owner']['username'], snippet_dir_name))
