@@ -28,8 +28,6 @@ class Snippet(object):
     def clone(url, clone_to):
         """Clone repo"""
 
-        click.secho('Cloning snippet from remote', fg='blue')
-
         try:
             repo_type = re.search(r'^(?:ssh|https)://(git|hg)', url).group(1)
         except AttributeError:
