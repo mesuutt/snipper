@@ -6,7 +6,8 @@ import subprocess
 
 import click
 
-import utils
+from . import utils
+
 
 class Snippet(object):
 

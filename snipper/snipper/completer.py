@@ -4,7 +4,7 @@ import re
 
 from prompt_toolkit.completion import Completer, Completion
 
-from snippet import Snippet
+from .snippet import Snippet
 
 
 __all__ = (

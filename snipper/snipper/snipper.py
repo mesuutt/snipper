@@ -10,10 +10,10 @@ import pyperclip
 import click
 from prompt_toolkit import prompt
 
-from api import SnippetApi
-from snippet import Snippet
-from completer import SnippetFilesCompleter, SnippetDirCompleter
-import utils
+from .api import SnippetApi
+from .snippet import Snippet
+from .completer import SnippetFilesCompleter, SnippetDirCompleter
+from . import utils
 
 DEFAULT_SNIPPER_HOME = path.expanduser('~/.snippets')
 DEFAULT_SNIPPER_CONFIG = path.join(DEFAULT_SNIPPER_HOME, 'config.json')
