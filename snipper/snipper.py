@@ -211,15 +211,6 @@ def edit_snippet_file(context, config, file_path=None, **kwargs):
 
     click.edit(filename=file_path)
 
-@cli.command(name='new', help='Create new snippet')
-@click.option('--title', help='Snippet title', prompt='Snippet title')
-@click.option('--filename', help='File name', default='note.md', prompt='File name')
-@click.option('--private/--public', default=True, prompt='Private snippet', help='Make private/public snippet')
-@click.option('--hg/--git', default=True, prompt='Use mercurial(n for git)', help='Choice scm. Default hg')
-@pass_config
-@click.pass_context
-def new_snippet(context, config, **kwargs):
-    pass
 
 @cli.command(name='add', help='Create new snippet from file[s]/STDIN')
 @click.option('--title', '-t', help='Snippet title', default='')
