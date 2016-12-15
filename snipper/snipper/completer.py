@@ -7,12 +7,8 @@ from prompt_toolkit.completion import Completer, Completion
 from .snippet import Snippet
 
 
-__all__ = (
-    'SnippetFilesCompleter',
-)
 
-
-class PathCompleter(Completer):
+class BasePathCompleter(Completer):
     collection = []
 
     def get_completions(self, document, complete_event):
@@ -43,7 +39,7 @@ class PathCompleter(Completer):
         return [x for _, _, x in sorted(suggestions)]
 
 
-class SnippetFilesCompleter(PathCompleter):
+class SnippetFilesCompleter(BasePathCompleter):
 
     def __init__(self, config):
         super(SnippetFilesCompleter, self).__init__()
@@ -60,18 +56,3 @@ class SnippetFilesCompleter(PathCompleter):
                 for file_name in snippet.get_files():
                     file_path_relative = os.path.join(item['owner']['username'], file_dir, file_name)
                     self.collection.append(file_path_relative)
-
-
-class SnippetDirCompleter(PathCompleter):
-
-    def __init__(self, config):
-        super(SnippetDirCompleter, self).__init__()
-
-        with open(os.path.join(config.config.get('metadata_file')), 'r') as file:
-            data = json.loads(file.read())
-            for item in data['values']:
-                snippet_id = item['id']
-                snippet = Snippet(config, item['owner']['username'], snippet_id)
-                snippet_dir_name = os.path.split(snippet.repo_path)[1]
-
-                self.collection.append(os.path.join(item['owner']['username'], snippet_dir_name))
