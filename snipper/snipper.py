@@ -6,6 +6,7 @@ import glob
 import logging
 import sys
 
+import pyperclip
 import click
 from prompt_toolkit import prompt
 
@@ -59,7 +60,7 @@ class SnipperConfig(object):
 pass_config = click.make_pass_decorator(SnipperConfig)  # pylint: disable-msg=C0103
 
 
-@click.group()
+@click.group(context_settings={'help_option_names':['-h','--help']})
 @click.option('--home', default=DEFAULT_SNIPPER_HOME, type=click.Path(), help='Snippet directory path. ({})'.format(DEFAULT_SNIPPER_HOME))
 @click.option('--config-file', default=DEFAULT_SNIPPER_CONFIG, type=click.Path(), help='Snipper config.json file path. ({})'.format(DEFAULT_SNIPPER_CONFIG))
 @click.pass_context
@@ -220,14 +221,40 @@ def edit_snippet_file(context, config, file_path=None, **kwargs):
 def new_snippet(context, config, **kwargs):
     pass
 
-@cli.command(name='add', help='Create new snippet from file[s]')
-@click.option('--title', help='Snippet title', prompt='Snippet title')
-@click.option('--private/--public', default=True, prompt='Private snippet', help='Make private/public snippet')
-@click.option('--hg/--git', default=True, prompt='Use mercurial(n for git)', help='Choice scm. Default hg')
-@click.option('--file', help='Create snippet from file', multiple=True)
+@cli.command(name='add', help='Create new snippet from file[s]/STDIN')
+@click.option('--title', '-t', help='Snippet title', default='')
+@click.option('--public', '-p', help='Make snippet public. Private by default', is_flag=True)
+@click.option('--git', '-git', is_flag=True, help='Use git as scm. Mercurial by default')
+@click.option('--copy-url', '-c', help='Copy resulting URL to clipboard', is_flag=True)
+@click.option('--open', '-o', help='Open snippet URL on browser after create', is_flag=True)
+@click.option('--paste', '-P', help='Create snippet from clipboard', is_flag=True)
+@click.option('--file', '-f', type=click.Path(exists=True), help='Create snippet from file', multiple=True)
+@click.argument('files', nargs=-1)
 @pass_config
 @click.pass_context
-def add_snippet(context, config, **kwargs):
+def add_snippet(context, config, files,  **kwargs):
+
+    file_list = utils.open_files(kwargs.get('file'))
+    import ipdb; ipdb.set_trace()
+    if files:
+        # Read files given as positional parameter
+        file_list.extend(utils.open_files(files))
+
+    if not sys.stdin.isatty():
+        # Read from stdin if stdin has some data
+        streamed_data = sys.stdin.read()
+        file_list.append(('file.txt', streamed_data))
+
+    if kwargs.get('paste'):
+        # Read from clipboard
+        clipboard_text = pyperclip.paste()
+        if clipboard_text:
+            file_list.append(('file.txt', clipboard_text))
+
+    if not file_list:
+        click.secho('Any file or stream not found.', fg='red')
+        print(context.get_help())
+        sys.exit(1)
 
     api = SnippetApi()
     api.set_config(config)
@@ -237,8 +264,8 @@ def add_snippet(context, config, **kwargs):
     click.secho('Snippet creating...', fg='blue')
 
     response = api.create_snippet(
-        utils.open_files(kwargs.get('file')),
-        kwargs.get('private', False),
+        file_list,
+        not kwargs.get('public', False),
         kwargs.get('title', None),
         scm,
     )
@@ -249,7 +276,12 @@ def add_snippet(context, config, **kwargs):
         Snippet.add_snippet_metadata(config, snippet_metadata)
         Snippet.clone_by_snippet_id(config, snippet_metadata['id'])
 
-    click.secho('New snippets cloned from Bitbucket', fg='green')
+        click.secho('New snippets cloned from Bitbucket', fg='green')
+
+        if kwargs.get('copy_url'):
+            # Copy snippet url to clipboard
+            pyperclip.copy(snippet_metadata['links']['html']['href'])
+            click.secho('URL copied to clipboard', fg='green')
 
 
 if __name__ == '__main__':
