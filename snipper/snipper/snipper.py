@@ -275,5 +275,5 @@ def add_snippet(context, config, files,  **kwargs):
             click.secho('URL copied to clipboard', fg='green')
 
 
-if __name__ == '__main__':
+def command_line_runner():
     cli()
