@@ -25,7 +25,7 @@ setup(
     long_description=read('README.md'),
     entry_points={
         'console_scripts': [
-            'sp = snipper.__main__:main',
+            'snipper = snipper.snipper:cli',
         ]
     },
     packages=['snipper'],
