@@ -32,7 +32,8 @@ setup(
     install_requires=[
         'requests',
         'click',
-        'pyperclip'
+        'prompt_toolkit',
+        'pyperclip',
     ],
     classifiers=[
         'License :: OSI Approved :: MIT License',
