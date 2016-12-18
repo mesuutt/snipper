@@ -273,7 +273,3 @@ def add_snippet(context, config, files,  **kwargs):
             # Copy snippet url to clipboard
             pyperclip.copy(snippet_metadata['links']['html']['href'])
             click.secho('URL copied to clipboard', fg='green')
-
-
-def command_line_runner():
-    cli()

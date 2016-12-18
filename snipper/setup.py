@@ -25,9 +25,10 @@ setup(
     long_description=read('README.md'),
     entry_points={
         'console_scripts': [
-            'snipper = snipper.snipper:command_line_runner',
+            'sp = snipper.__main__:main',
         ]
     },
+    packages=['snipper'],
     install_requires=[
         'requests',
         'click',
