@@ -191,36 +191,48 @@ def add_snippet(context, files, **kwargs):
 
     config = context.obj
 
-    file_list = utils.open_files(kwargs.get('file'))
+    content_list = utils.open_files(kwargs.get('file'))
 
     if files:
         # Read files given as positional parameter
-        file_list.extend(utils.open_files(files))
+        content_list.extend(utils.open_files(files))
+
+    default_file_name = config.get('snipper', 'default_filename')
 
     if not sys.stdin.isatty():
         # Read from stdin if stdin has some data
         streamed_data = sys.stdin.read()
-        file_list.append(('file.txt', streamed_data))
+        content_list.append((default_file_name, streamed_data))
 
     if kwargs.get('paste'):
         # Read from clipboard
         clipboard_text = pyperclip.paste()
         if clipboard_text:
-            file_list.append(('file.txt', clipboard_text))
+            content_list.append((default_file_name, clipboard_text))
 
-    if not file_list:
-        click.secho('Any file or stream not found.', fg='red')
-        print(context.get_help())
-        sys.exit(1)
+    if not content_list:
 
-    api = SnippetApi(config)
+        # click.edit() return None if user closes to editor without saving.
+        content = click.edit()
 
-    scm = 'hg' if kwargs.get('hg') else 'git'
+        if content is None:
+            click.secho('Empty content. Exiting', fg='red')
+            sys.exit(1)
+
+        if content == '':
+            confirm = click.confirm('Content is empty. Create anyway?')
+            if not confirm:
+                sys.exit(1)
+
+        content_list.append((default_file_name, content))
+
+    scm = 'git' if kwargs.get('git') else 'hg'
 
     click.secho('Snippet creating...', fg='blue')
 
+    api = SnippetApi(config)
     response = api.create_snippet(
-        file_list,
+        content_list,
         not kwargs.get('public', False),
         kwargs.get('title', None),
         scm,
