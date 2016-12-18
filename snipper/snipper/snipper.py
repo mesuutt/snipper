@@ -12,7 +12,7 @@ from prompt_toolkit import prompt
 
 from .api import SnippetApi
 from .snippet import Snippet
-from .completer import SnippetFilesCompleter, SnippetDirCompleter
+from .completer import SnippetFilesCompleter
 from . import utils
 
 DEFAULT_SNIPPER_HOME = path.expanduser('~/.snippets')
@@ -226,7 +226,7 @@ def edit_snippet_file(context, config, file_path=None, **kwargs):
 def add_snippet(context, config, files,  **kwargs):
 
     file_list = utils.open_files(kwargs.get('file'))
-    import ipdb; ipdb.set_trace()
+
     if files:
         # Read files given as positional parameter
         file_list.extend(utils.open_files(files))
