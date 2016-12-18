@@ -7,12 +7,12 @@ BASE_URL = 'https://api.bitbucket.org/2.0'
 class BitbucketApi(object):
     base_url = BASE_URL
 
-    def set_config(self, config):
+    def __init__(self, config):
         self.config = config
 
     def get(self, endpoint):
-        username = self.config.get('username')
-        password = self.config.get('password')
+        username = self.config.get('snipper', 'username')
+        password = self.config.get('snipper', 'password')
 
         res = requests.get(self.build_endpoint(endpoint), auth=(username, password))
         res.raise_for_status()
@@ -27,7 +27,7 @@ class SnippetApi(BitbucketApi):
     base_url = '{}/snippets'.format(BASE_URL)
 
     def get_all(self):
-        res = self.get(self.config.get('username'))
+        res = self.get(self.config.get('snipper', 'username'))
         return res.json()
 
     def make_payload(self, is_private, title, scm, **kwargs):
@@ -44,8 +44,8 @@ class SnippetApi(BitbucketApi):
 
     def create_snippet(self, files, is_private, title, scm):
 
-        username = self.config.get('username')
-        password = self.config.get('password')
+        username = self.config.get('snipper', 'username')
+        password = self.config.get('snipper', 'password')
 
         payload = self.make_payload(is_private, title, scm)
         response = requests.post(

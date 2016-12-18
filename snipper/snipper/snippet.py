@@ -19,7 +19,7 @@ class Snippet(object):
         self.repo_path = self.get_path()
 
     def get_path(self):
-        repo_parent = os.path.join(self.config.get('snippet_home'), self.username)
+        repo_parent = os.path.join(self.config.get('snipper', 'snippet_dir'), self.username)
         matched_path = glob.glob(os.path.join(repo_parent, '*{}'.format(self.snippet_id)))
 
         return matched_path[0] if matched_path else None
@@ -52,7 +52,7 @@ class Snippet(object):
 
     def get_files(self):
         """ Get files in local snippet directory """
-        metadata_file = os.path.join(self.config.get('snippet_home'), 'metadata.json')
+        metadata_file = os.path.join(self.config.get('snipper', 'snippet_dir'), 'metadata.json')
         with open(metadata_file, 'r') as file:
             data = json.loads(file.read())
 
@@ -68,8 +68,9 @@ class Snippet(object):
         Clone snippet from remote to local by snippet id
         Using for cloning new created snippet.
         """
+        metadata_file = os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json')
 
-        with open(config.get('metadata_file'), 'r') as file:
+        with open(metadata_file, 'r') as file:
             metadata_file_content = json.loads(file.read())
 
         # Get snippet metadata from metadata file for cloning
@@ -79,7 +80,7 @@ class Snippet(object):
                 break
 
         owner_username = metadata['owner']['username']
-        repo_parent = os.path.join(config.get('snippet_home'), owner_username)
+        repo_parent = os.path.join(config.get('snipper', 'snippet_dir'), owner_username)
 
         # Find snippet dirs which ends with specified snippet_id for checking
         # snippet cloned before
@@ -102,7 +103,9 @@ class Snippet(object):
     def add_snippet_metadata(config, snippet_metadata):
         """Open file reading and writing"""
 
-        with open(config.get('metadata_file'), 'r+') as file:
+        metadata_file = os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json')
+
+        with open(metadata_file, 'r+') as file:
             metadata = json.loads(file.read())
             file.seek(0)
             metadata['values'].append(snippet_metadata)

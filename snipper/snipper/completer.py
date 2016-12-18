@@ -44,7 +44,7 @@ class SnippetFilesCompleter(BasePathCompleter):
     def __init__(self, config):
         super(SnippetFilesCompleter, self).__init__()
 
-        with open(os.path.join(config.config.get('metadata_file')), 'r') as file:
+        with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
             data = json.loads(file.read())
             for item in data['values']:
                 snippet_id = item['id']

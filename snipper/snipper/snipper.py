@@ -9,56 +9,25 @@ import sys
 import pyperclip
 import click
 from prompt_toolkit import prompt
+import configparser
 
 from .api import SnippetApi
 from .snippet import Snippet
 from .completer import SnippetFilesCompleter
 from . import utils
 
-DEFAULT_SNIPPER_HOME = path.expanduser('~/.snippets')
-DEFAULT_SNIPPER_CONFIG = path.join(DEFAULT_SNIPPER_HOME, 'config.json')
-SNIPPET_METADATA_FILE = path.join(DEFAULT_SNIPPER_HOME, 'metadata.json')
+DEFAULT_SNIPPET_DIR = os.path.expanduser('~/.snippets')
+DEFAULT_SNIPPER_CONFIG = os.path.expanduser('~/.snipperrc')
 
-
-class SnipperConfig(object):
-    verbose_short = 'short'
-    verbose_detailed = 'detailed'
-
-    def __init__(self, file):
-        self.file = file
-        self.config = {}
-        self.config['verbose'] = self.verbose_short
-
-        with open(self.file, 'r') as file:
-            conf_content = json.loads(file.read())
-
-        for key, value in conf_content.items():
-            self.config[key] = value
-
-    def get(self, key):
-        return self.config[key]
-
-    def set(self, key, value):
-        self.config[key] = value
-
-    def save_to_file(self):
-        with open(self.file, 'w') as file:
-            file.write(json.dumps(self.config, indent=4))
-
-        click.secho('Config file updated: {}'.format(self.file), fg='green')
-
-    def file_exists(self):
-        return path.exists(self.file)
-
-
-pass_config = click.make_pass_decorator(SnipperConfig)  # pylint: disable-msg=C0103
-
-
-@click.group(context_settings={'help_option_names':['-h','--help']})
-@click.option('--home', default=DEFAULT_SNIPPER_HOME, type=click.Path(), help='Snippet directory path. ({})'.format(DEFAULT_SNIPPER_HOME))
-@click.option('--config-file', default=DEFAULT_SNIPPER_CONFIG, type=click.Path(), help='Snipper config.json file path. ({})'.format(DEFAULT_SNIPPER_CONFIG))
+@click.group(context_settings={'help_option_names': ['-h', '--help']})
+@click.option(
+    '--config-file', '-c',
+    default=DEFAULT_SNIPPER_CONFIG,
+    type=click.Path(),
+    help='Config file path: Default: {}'.format(DEFAULT_SNIPPER_CONFIG)
+)
 @click.pass_context
-def cli(ctx, home, config_file, **kwargs): # pylint: disable-msg=W0613
+def cli(context, config_file):
 
     # Create a SnippetConfig object and remember it as as the context object.  From
     # this point onwards other commands can refer to it by using the
@@ -66,21 +35,20 @@ def cli(ctx, home, config_file, **kwargs): # pylint: disable-msg=W0613
 
     if not path.exists(config_file):
         click.secho('Configuration file not found. Plase give me your settings.', fg='red')
-        init_snipper(home=home)
+        init_snipper(config_file=config_file)
 
-    config = SnipperConfig(config_file)
-    config.set('snippet_home', home)
-    config.set('metadata_file', SNIPPET_METADATA_FILE)
+    config = configparser.ConfigParser()
+    config.read(config_file)
 
-    ctx.obj = config
+    context.obj = config
 
 
-def init_snipper(home):
-    config_file = path.join(home, 'config.json')
+def init_snipper(config_file):
+
     if path.exists(config_file) and not click.confirm('Config file already exist. Overwrite it'):
         return
 
-    home = click.prompt('Where to keep snippets on local', default=home)
+    snippet_dir = click.prompt('Where to keep snippets', default=DEFAULT_SNIPPET_DIR)
     username = click.prompt('Bitbucket username')
     click.secho(
         """Password using for authenticating to Bitbucket API.
@@ -91,44 +59,43 @@ def init_snipper(home):
     password = getpass.getpass('Bitbucket Password:')
 
     # Create snippet home dir
-    if not path.exists(home):
-        os.makedirs(home)
+    if not path.exists(snippet_dir):
+        os.makedirs(snippet_dir)
 
-    # Create config file
 
-    if not path.exists(config_file):
-        with open(config_file, 'w+') as file:
-            file.write('{}')
+    config = configparser.ConfigParser()
+    config.read(config_file)
 
-    config = SnipperConfig(config_file)
-    config.set('snippet_home', home)
-    config.set('username', username)
-    config.set('password', password)
-    config.set('verbose', SnipperConfig.verbose_detailed)
+    config.set('snipper', 'snippet_dir', snippet_dir)
+    config.set('snipper', 'username', username)
+    config.set('snipper', 'password', password)
+    config.set('snipper', 'verbose', 'detailed')
 
-    config.save_to_file()
+    config.write(open(config_file, 'w'))
 
 
 @cli.command(name='ls')
-@click.option('-v', 'verbose', flag_value=SnipperConfig.verbose_short, help='Provides short listing')
+@click.option('-v', 'verbose', flag_value='short', help='Provides short listing')
 @click.option(
     '-vv',
     'verbose',
     default=True,
-    flag_value=SnipperConfig.verbose_detailed,
+    flag_value='detailed',
     help='Provides the most detailed listing'
 )
-@pass_config
 @click.pass_context
-def list_snippets(context, config, verbose, **kwargs):
+def list_snippets(context, verbose):
     """List local snippets"""
-    config.verbose = verbose
 
-    with open(path.join(SNIPPET_METADATA_FILE), 'r') as file:
+    config = context.obj
+
+    config.set('snipper', 'verbose', verbose)
+
+    with open(path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
         data = json.loads(file.read())
         for item in data['values']:
 
-            if verbose == SnipperConfig.verbose_detailed:
+            if verbose == 'detailed':
                 # Show files in snippet
                 snippet = Snippet(config, item['owner']['username'], item['id'])
                 snippet_path = snippet.get_path()
@@ -145,26 +112,24 @@ def list_snippets(context, config, verbose, **kwargs):
 
 
 @cli.command(name='pull')
-@pass_config
 @click.pass_context
-def pull_local_snippets(context, config, **kwargs):
+def pull_local_snippets(context):
     """
     Update local snippets from Bitbucket.
     Pull existing snippets change and clone new snippets if exists.
     """
-
-    api = SnippetApi()
-    api.set_config(config)
+    config = context.obj
+    api = SnippetApi(config)
     res = api.get_all()
 
-    with open(path.join(SNIPPET_METADATA_FILE), 'w') as file:
+    with open(path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'w') as file:
         file.write(json.dumps(res))
 
     for item in res['values']:
 
         owner_username = item['owner']['username']
         snippet_id = item['id']
-        repo_parent = path.join(DEFAULT_SNIPPER_HOME, owner_username)
+        repo_parent = path.join(config.get('snipper', 'snippet_dir'), owner_username)
 
         # Find snippet dirs which ends with specified snippet_id for checking
         # snippet cloned before
@@ -174,34 +139,40 @@ def pull_local_snippets(context, config, **kwargs):
         if matched_pats:
             Snippet.pull(matched_pats[0])
         else:
-            Snippet.clone_by_snippet_id(config, snippet_id)
+            Snippet.clone_by_snippet_id(context.obj, snippet_id)
 
     click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
 
 
-def _open_snippet_file(ctx, param, relative_path):
+def _open_snippet_file(context, param, relative_path):
     """Open snippet file with default editor"""
 
-    if not relative_path or ctx.resilient_parsing:
+    if not relative_path or context.resilient_parsing:
         return
 
-    file_path = os.path.join(ctx.obj.get('snippet_home'), relative_path)
+    file_path = os.path.join(context.obj.get('snipper', 'snippet_dir'), relative_path)
 
     if os.path.exists(file_path):
         click.edit(filename=file_path)
     else:
         click.secho('File not exist. Exiting ...', fg='red')
 
-    ctx.exit()
+    context.exit()
 
 @cli.command(name='edit', help='Edit snippet file')
 @click.option('--fuzzy', is_flag=True, default=True, help='Open fuzzy file finder')
-@click.argument('FILE_PATH', type=click.Path(), required=False, is_eager=True, expose_value=False, callback=_open_snippet_file)
-@pass_config
+@click.argument(
+    'FILE_PATH',
+    type=click.Path(),
+    required=False, is_eager=True, expose_value=False,
+    callback=_open_snippet_file
+)
 @click.pass_context
-def edit_snippet_file(context, config, file_path=None, **kwargs):
+def edit_snippet_file(context, fuzzy, file_path=None):
+
+    config = context.obj
     selected_file = prompt('[Add/Edit file] > ', completer=SnippetFilesCompleter(config))
-    file_path = os.path.join(config.get('snippet_home'), selected_file)
+    file_path = os.path.join(config.get('snipper', 'snippet_dir'), selected_file)
 
     click.edit(filename=file_path)
 
@@ -215,9 +186,10 @@ def edit_snippet_file(context, config, file_path=None, **kwargs):
 @click.option('--paste', '-P', help='Create snippet from clipboard', is_flag=True)
 @click.option('--file', '-f', type=click.Path(exists=True), help='Create snippet from file', multiple=True)
 @click.argument('files', nargs=-1)
-@pass_config
 @click.pass_context
-def add_snippet(context, config, files,  **kwargs):
+def add_snippet(context, files, **kwargs):
+
+    config = context.obj
 
     file_list = utils.open_files(kwargs.get('file'))
 
@@ -241,8 +213,7 @@ def add_snippet(context, config, files,  **kwargs):
         print(context.get_help())
         sys.exit(1)
 
-    api = SnippetApi()
-    api.set_config(config)
+    api = SnippetApi(config)
 
     scm = 'hg' if kwargs.get('hg') else 'git'
 
@@ -267,3 +238,7 @@ def add_snippet(context, config, files,  **kwargs):
             # Copy snippet url to clipboard
             pyperclip.copy(snippet_metadata['links']['html']['href'])
             click.secho('URL copied to clipboard', fg='green')
+
+
+if __name__ == '__main__':
+    cli()
