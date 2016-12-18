@@ -42,17 +42,18 @@ class SnippetApi(BitbucketApi):
 
         return payload
 
-    def create_snippet(self, files, is_private, title, scm):
+    def create_snippet(self, file_list, is_private, title, scm):
 
         username = self.config.get('snipper', 'username')
         password = self.config.get('snipper', 'password')
 
         payload = self.make_payload(is_private, title, scm)
+
         response = requests.post(
             self.base_url,
             data=payload,
-            files=files,
-            auth=(username, password)
+            files=file_list,
+            auth=(username, password),
         )
 
         return response
