@@ -20,12 +20,6 @@ DEFAULT_SNIPPER_CONFIG = path.join(DEFAULT_SNIPPER_HOME, 'config.json')
 SNIPPET_METADATA_FILE = path.join(DEFAULT_SNIPPER_HOME, 'metadata.json')
 
 
-logger = logging.getLogger('snipper')
-logger.setLevel(logging.DEBUG)  # TODO: set with --verbose param
-ch = logging.StreamHandler(sys.stdout)
-logger.addHandler(ch)
-
-
 class SnipperConfig(object):
     verbose_short = 'short'
     verbose_detailed = 'detailed'
