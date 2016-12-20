@@ -5,6 +5,7 @@ import getpass
 import glob
 import logging
 import sys
+import pathlib
 
 import pyperclip
 import click
@@ -36,9 +37,9 @@ def cli(context, config_file):
     # Create config with default values
     config = configparser.ConfigParser({
         'snippet_dir': DEFAULT_SNIPPET_DIR,
-        'default_filename': 'snippet.md',
         'verbose': 'detailed',
         'auto_push': False,
+        'default_filename': 'snippet.md',
     })
 
     # Overwrite config with user config.
@@ -65,7 +66,6 @@ def init_snipper(config_file):
     # Create snippet home dir
     if not path.exists(snippet_dir):
         os.makedirs(snippet_dir)
-
 
     config = configparser.ConfigParser()
     config.read(config_file)
@@ -173,12 +173,22 @@ def _open_snippet_file(context, param, relative_path):
 )
 @click.pass_context
 def edit_snippet_file(context, fuzzy, file_path=None):
-
     config = context.obj
+
     selected_file = prompt('[Add/Edit file] > ', completer=SnippetFilesCompleter(config))
     file_path = os.path.join(config.get('snipper', 'snippet_dir'), selected_file)
 
     click.edit(filename=file_path)
+
+    parts = pathlib.Path(selected_file).parts
+    repo_dir = os.path.join(config.get('snipper', 'snippet_dir'), parts[0], parts[1])
+
+    commit_message = "{} updated".format(os.path.join(*parts[2:]))
+    Snippet.commit(repo_dir, commit_message)
+
+    if config.getboolean('snipper', 'auto_push'):
+        click.secho('Pushing changes to Bitbucket', fg='blue')
+        Snippet.push(repo_dir)
 
 
 @cli.command(name='add', help='Create new snippet from file[s]/STDIN')
