@@ -17,11 +17,11 @@ setup(
     version=__import__('snipper').__version__,
     url='https://github.com/mesuutt/snipper',
     author='Mesut Tasci',
-    author_email='mst.tasci@gmail.com',
+    author_email='mst~dot~tasci~at~gmail~dot~com',
     description=('A command-line interface for creating, listing, and editing Bitbucket Snippets.'),
     license='MIT',
     test_suite='tests',
-    keywords="bitbucket snippet gist command line cli",
+    keywords="bitbucket snippet gist commandline cli",
     long_description=read('README.md'),
     entry_points={
         'console_scripts': [
