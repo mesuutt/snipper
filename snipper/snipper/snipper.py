@@ -206,7 +206,7 @@ def add_snippet(context, files, **kwargs):
     if not sys.stdin.isatty():
         # Read from stdin if stdin has some data
         streamed_data = sys.stdin.read()
-        content_list.append((default_file_name, streamed_data))
+        content_list.append(('file', (default_file_name, streamed_data,),))
 
     if kwargs.get('paste'):
         # Read from clipboard
