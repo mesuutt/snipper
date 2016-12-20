@@ -266,5 +266,19 @@ def add_snippet(context, files, **kwargs):
             click.secho('URL copied to clipboard', fg='green')
 
 
+
+@cli.command(name='sync', help='Sync snippets with Bitbucket')
+@click.pass_context
+def sync_snippets(context):
+    config = context.obj
+
+    # glob is '*/*'
+    files_depth_2 = glob.glob(os.path.join(config.get('snipper', 'snippet_dir'), '*', '*'))
+    snippet_dirs = filter(lambda x: os.path.isdir(x), files_depth_2)
+
+    for snippet_dir in snippet_dirs:
+        Snippet.pull(snippet_dir)
+        Snippet.push(snippet_dir)
+
 if __name__ == '__main__':
     cli()
