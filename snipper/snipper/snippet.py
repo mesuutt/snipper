@@ -48,7 +48,32 @@ class Snippet(object):
         if os.path.exists(os.path.join(repo_dir, '.hg')):
             subprocess.call(['hg', 'pull', '--cwd={}'.format(repo_dir)], stderr=subprocess.STDOUT)
         else:
+            subprocess.call(['git', '--git-dir={}/.git'.format(repo_dir), 'pull'], stderr=subprocess.STDOUT)
+
+    @staticmethod
+    def commit(repo_dir, message):
+        """Commit changes"""
+
+        # Go to repo dir
+        os.chdir(repo_dir)
+        if os.path.exists(os.path.join(repo_dir, '.hg')):
+            subprocess.call(['hg', 'add', '.'], stderr=subprocess.STDOUT)
+            subprocess.call(['hg', 'commit', '-m', message], stderr=subprocess.STDOUT)
+        else:
+            subprocess.call(['git', 'add', '-A'], stderr=subprocess.STDOUT)
+            subprocess.call(['git', 'commit', '-m', message], stderr=subprocess.STDOUT)
+
+    @staticmethod
+    def push(repo_dir):
+        """Push changes to remote"""
+
+        click.secho('Pushing local changes: {}'.format(repo_dir), fg='blue')
+
+        if os.path.exists(os.path.join(repo_dir, '.hg')):
+            subprocess.call(['hg', 'push', '--cwd={}'.format(repo_dir)], stderr=subprocess.STDOUT)
+        else:
             subprocess.call(['git', '--git-dir={}/.git'.format(repo_dir), 'pull'])
+
 
     def get_files(self):
         """ Get files in local snippet directory """
