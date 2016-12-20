@@ -29,15 +29,19 @@ DEFAULT_SNIPPER_CONFIG = os.path.expanduser('~/.snipperrc')
 @click.pass_context
 def cli(context, config_file):
 
-    # Create a SnippetConfig object and remember it as as the context object.  From
-    # this point onwards other commands can refer to it by using the
-    # @pass_config decorator.
-
     if not path.exists(config_file):
         click.secho('Configuration file not found. Plase give me your settings.', fg='red')
         init_snipper(config_file=config_file)
 
-    config = configparser.ConfigParser()
+    # Create config with default values
+    config = configparser.ConfigParser({
+        'snippet_dir': DEFAULT_SNIPPET_DIR,
+        'default_filename': 'snippet.md',
+        'verbose': 'detailed',
+        'auto_push': False,
+    })
+
+    # Overwrite config with user config.
     config.read(config_file)
 
     context.obj = config
