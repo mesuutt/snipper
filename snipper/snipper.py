@@ -223,7 +223,12 @@ def add_snippet(context, files, **kwargs):
         # Read from clipboard
         clipboard_text = pyperclip.paste()
         if clipboard_text:
-            content_list.append((default_file_name, clipboard_text))
+
+            if not title:
+                # if title not specified, make first 50 charecters of first line
+                title = clipboard_text.split('\n')[0][:50]
+
+            content_list.append(('file', (default_file_name, clipboard_text)))
 
     if not content_list:
 
