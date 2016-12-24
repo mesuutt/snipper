@@ -47,6 +47,10 @@ def cli(context, config_file):
     # Overwrite config with user config.
     config.read(config_file)
 
+    # https protocol not supported because
+    # user must give password every clone/pull/push.
+    config.set('snipper', 'protocol', 'ssh')
+
     context.obj = config
 
 

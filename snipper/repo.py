@@ -8,8 +8,7 @@ class Repo:
     @staticmethod
     def clone(url, clone_to):
         """Clone repo"""
-
-        repo_type = re.search(r'^(?:ssh|https)://(git|hg)', url).group(1)
+        repo_type = re.search(r'^(?:ssh)://(git|hg)', url).group(1)
 
         if repo_type == "hg":
             cmd = 'hg clone {} {}'.format(url, clone_to)

@@ -79,15 +79,13 @@ class Snippet(object):
         metadata = self.data
         repo_parent = os.path.dirname(self.repo_path)
 
-        # Clone repo over ssh (1)
-        clone_url = metadata['links']['clone'][1]['href']
         clone_to = os.path.join(repo_parent, self.data['id'])
 
         if metadata['title']:
             # Using title for readablity(<slugified snippet_title>-<snippet_id>)
             clone_to = os.path.join(repo_parent, self.get_slufied_dirname())
 
-        Repo.clone(clone_url, clone_to=clone_to)
+        Repo.clone(self.get_clone_url(), clone_to=clone_to)
 
     @staticmethod
     def add_snippet_metadata(config, snippet_metadata):
@@ -116,3 +114,12 @@ class Snippet(object):
                 return item
 
         return None
+
+    def get_clone_url(self):
+        clone = next(filter(
+            lambda x: x['name'] == self.config.get('snipper', 'protocol'),
+            self.data['links']['clone']
+        ))
+
+        return clone['href']
+
