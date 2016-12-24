@@ -123,3 +123,14 @@ class Snippet(object):
 
         return clone['href']
 
+
+    def show_details(self):
+
+        text = "\n".join([
+            'Title     : {}'.format(self.data['title']),
+            'Is private: {}'.format("Yes" if self.data['is_private'] else "No"),
+            'Url       : {}'.format(self.data['links']['html']['href']),
+            'Owner     : {}'.format(self.data['owner']['username']),
+        ])
+
+        print(text)

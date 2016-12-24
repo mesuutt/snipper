@@ -3,7 +3,6 @@ import os
 from os import path
 import json
 import getpass
-import glob
 import sys
 import pathlib
 import configparser
@@ -277,6 +276,7 @@ def add_snippet(context, files, **kwargs):
             pyperclip.copy(snippet.data['links']['html']['href'])
             click.secho('URL copied to clipboard', fg='green')
 
+        snippet.show_details()
 
 @cli.command(name='sync', help='Sync snippets with Bitbucket')
 @click.argument('snippet_id', nargs=1, required=False)
