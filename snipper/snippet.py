@@ -88,21 +88,22 @@ class Snippet(object):
         Repo.clone(self.get_clone_url(), clone_to=clone_to)
 
     def get_clone_url(self):
-        clone = next(filter(
+        # For py2 support converting to iterator
+
+        return next(iter(filter(
             lambda x: x['name'] == self.config.get('snipper', 'protocol'),
             self.data['links']['clone']
-        ))
+        )))['href']
 
-        return clone['href']
 
 
     def show_details(self):
 
         text = "\n".join([
-            'Title     : {}'.format(self.data['title']),
-            'Is private: {}'.format("Yes" if self.data['is_private'] else "No"),
-            'Url       : {}'.format(self.data['links']['html']['href']),
-            'Owner     : {}'.format(self.data['owner']['username']),
+            u'Title     : {}'.format(self.data['title']),
+            u'Is private: {}'.format("Yes" if self.data['is_private'] else "No"),
+            u'Url       : {}'.format(self.data['links']['html']['href']),
+            u'Owner     : {}'.format(self.data['owner']['username']),
         ])
 
         print(text)

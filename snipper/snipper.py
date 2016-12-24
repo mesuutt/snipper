@@ -1,4 +1,3 @@
-
 import os
 from os import path
 import json
@@ -177,7 +176,7 @@ def _open_snippet_file(context, param, relative_path):
 def edit_snippet_file(context, fuzzy, file_path=None):
     config = context.obj
 
-    selected_file = prompt('[Add/Edit file] > ', completer=SnippetFilesCompleter(config))
+    selected_file = prompt(u'[Add/Edit file] > ', completer=SnippetFilesCompleter(config))
     file_path = os.path.join(config.get('snipper', 'snippet_dir'), selected_file)
 
     click.edit(filename=file_path)
@@ -185,7 +184,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
     snippet_dir_name, _ = os.path.split(selected_file)
     repo_dir = os.path.join(config.get('snipper', 'snippet_dir'), snippet_dir_name)
 
-    commit_message = "{} updated".format(selected_file)
+    commit_message = u"{} updated".format(selected_file)
     Repo.commit(repo_dir, commit_message)
 
     if config.getboolean('snipper', 'auto_push'):
