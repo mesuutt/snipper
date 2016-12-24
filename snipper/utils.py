@@ -28,4 +28,11 @@ def slugify(text):
 def run_command(cmd):
     """Run command on shell"""
 
-    return Popen(shlex.split(cmd), stderr=PIPE, stdout=DEVNULL, universal_newlines=True)
+    # This commands will run in background.
+    # So can return before process completed.
+    process = Popen(shlex.split(cmd), stderr=PIPE, stdout=DEVNULL, universal_newlines=True)
+
+    # If you want to sure process completed use p.wait()
+    # If you will check process same as `process.stderr.read()` process will wait automatically.
+
+    return process
