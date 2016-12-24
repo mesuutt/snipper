@@ -4,7 +4,6 @@ from os import path
 import json
 import getpass
 import sys
-import pathlib
 import configparser
 
 import pyperclip
@@ -183,10 +182,10 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 
     click.edit(filename=file_path)
 
-    parts = pathlib.Path(selected_file).parts
-    repo_dir = os.path.join(config.get('snipper', 'snippet_dir'), parts[0], parts[1])
+    snippet_dir_name, _ = os.path.split(selected_file)
+    repo_dir = os.path.join(config.get('snipper', 'snippet_dir'), snippet_dir_name)
 
-    commit_message = "{} updated".format(os.path.join(*parts[2:]))
+    commit_message = "{} updated".format(selected_file)
     Repo.commit(repo_dir, commit_message)
 
     if config.getboolean('snipper', 'auto_push'):
