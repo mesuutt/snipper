@@ -1,10 +1,13 @@
 import os
 import re
 import shlex
-from subprocess import Popen, DEVNULL, PIPE
+import sys
+from subprocess import Popen, PIPE
 
-import click
-
+if sys.version_info > (3, 3):
+    from subprocess import DEVNULL
+else:
+    DEVNULL = open(os.devnull, 'w')
 
 def open_files(filelist):
     """Open files for upload"""
