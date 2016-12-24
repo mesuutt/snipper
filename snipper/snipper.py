@@ -1,3 +1,4 @@
+
 import os
 from os import path
 import json
@@ -97,23 +98,26 @@ def list_snippets(context, verbose):
 
     with open(path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
         data = json.loads(file.read())
+
         for item in data['values']:
 
-            if verbose == 'detailed':
+            if verbose == 'short':
+                click.secho('[{}] {}'.format(item['id'], item['title']))
+
+            elif verbose == 'detailed':
                 # Show files in snippet
                 snippet = Snippet(config, item['owner']['username'], item['id'])
                 snippet_path = snippet.get_path()
 
                 if not snippet_path:
-                    msg = '[{}] Snippet does not exist in file system. Please `pull` changes'
-                    click.secho(msg.format(item['id']), fg='red')
+                    msg = '[{}] {} \n Snippet does not exist. Please `pull` changes'
+                    click.secho(msg.format(item['id'], item['title']), fg='red')
 
                     continue
 
                 onlyfiles = snippet.get_files()
                 for file_name in onlyfiles:
                     click.secho(os.path.join(item['owner']['username'], snippet_path, file_name))
-
 
 @cli.command(name='pull')
 @click.pass_context
@@ -277,6 +281,9 @@ def sync_snippets(context):
     snippet_dirs = filter(lambda x: os.path.isdir(x), files_depth_2)
 
     for snippet_dir in snippet_dirs:
+        # Commit changes if exist before pull new changes from remote.
+        Snippet.commit(snippet_dir, "Snippet updated")
+
         Snippet.pull(snippet_dir)
         Snippet.push(snippet_dir)
 

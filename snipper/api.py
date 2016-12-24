@@ -1,11 +1,11 @@
 import os
 import requests
 
-BASE_URL = 'https://api.bitbucket.org/2.0'
+BITBUCKET_API_URL = 'https://api.bitbucket.org/2.0'
 
 
 class BitbucketApi(object):
-    base_url = BASE_URL
+    base_url = BITBUCKET_API_URL
 
     def __init__(self, config):
         self.config = config
@@ -24,7 +24,7 @@ class BitbucketApi(object):
 
 
 class SnippetApi(BitbucketApi):
-    base_url = '{}/snippets'.format(BASE_URL)
+    base_url = '{}/snippets'.format(BITBUCKET_API_URL)
 
     def get_all(self):
         res = self.get(self.config.get('snipper', 'username'))

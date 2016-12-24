@@ -126,7 +126,7 @@ class Snippet(object):
 
     @staticmethod
     def add_snippet_metadata(config, snippet_metadata):
-        """Open file reading and writing"""
+        """Add response of created snippet to metadata file"""
 
         metadata_file = os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json')
 
