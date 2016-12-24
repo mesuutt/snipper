@@ -265,6 +265,15 @@ def add_snippet(context, files, **kwargs):
 
     if response.ok:
         snippet = Snippet(config, response.json())
+
+        # Add new created snippet metadata to file
+        metadata_file = os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json')
+        with open(metadata_file, 'r+') as file:
+            metadata = json.loads(file.read())
+            file.seek(0)
+            metadata['values'].append(response.json())
+            file.write(json.dumps(metadata))
+
         snippet.clone()
 
         click.secho('New snippets cloned from Bitbucket', fg='green')
