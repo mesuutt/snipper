@@ -4,7 +4,7 @@ import shlex
 import sys
 from subprocess import Popen, PIPE
 
-if sys.version_info > (3, 3):
+if sys.version_info >= (3, 3):
     from subprocess import DEVNULL
 else:
     DEVNULL = open(os.devnull, 'w')
