@@ -47,12 +47,10 @@ class SnippetFilesCompleter(BasePathCompleter):
         with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
             data = json.loads(file.read())
             for item in data['values']:
-                snippet_id = item['id']
-                snippet = Snippet(config, item['owner']['username'], snippet_id)
+                snippet = Snippet(config, item)
                 if not snippet.get_path():
                     continue
 
                 file_dir = os.path.split(snippet.get_path())[1]
                 for file_name in snippet.get_files():
-                    file_path_relative = os.path.join(item['owner']['username'], file_dir, file_name)
-                    self.collection.append(file_path_relative)
+                    self.collection.append(os.path.join(file_dir, file_name))
