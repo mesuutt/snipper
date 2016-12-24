@@ -87,34 +87,6 @@ class Snippet(object):
 
         Repo.clone(self.get_clone_url(), clone_to=clone_to)
 
-    @staticmethod
-    def add_snippet_metadata(config, snippet_metadata):
-        """Add response of created snippet to metadata file"""
-
-        metadata_file = os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json')
-
-        with open(metadata_file, 'r+') as file:
-            metadata = json.loads(file.read())
-            file.seek(0)
-            metadata['values'].append(snippet_metadata)
-
-            file.write(json.dumps(metadata))
-
-    @staticmethod
-    def get_snippet_by_id(config, snippet_id):
-
-        metadata_file = os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json')
-
-        with open(metadata_file, 'r') as file:
-            metadata_file_content = json.loads(file.read())
-
-        # Get snippet metadata from metadata file for cloning
-        for item in metadata_file_content['values']:
-            if item['id'] == snippet_id:
-                return item
-
-        return None
-
     def get_clone_url(self):
         clone = next(filter(
             lambda x: x['name'] == self.config.get('snipper', 'protocol'),
