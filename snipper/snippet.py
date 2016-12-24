@@ -11,7 +11,6 @@ class Snippet(object):
         self.config = config
         self.data = data
 
-        self.username = data['owner']['username']
         self.snippet_id = data['id']
 
         self.repo_path = self.get_path()
@@ -25,7 +24,7 @@ class Snippet(object):
         return os.path.exists(self.get_path())
 
     def get_path(self):
-        repo_parent = os.path.join(self.config.get('snipper', 'snippet_dir'), self.username)
+        repo_parent = self.config.get('snipper', 'snippet_dir')
 
         # Find snippet dirs which ends with specified snippet_id for checking
         matched_path = glob.glob(os.path.join(repo_parent, '*{}'.format(self.snippet_id)))
@@ -34,7 +33,7 @@ class Snippet(object):
 
         # If snippet dir not found return generated path
         dir_name = self.get_slufied_dirname()
-        new_path = os.path.join(repo_parent, self.data['owner']['username'], dir_name)
+        new_path = os.path.join(repo_parent, dir_name)
 
         return new_path
 
@@ -47,7 +46,7 @@ class Snippet(object):
         """Rename snippet directory with new title"""
 
         dir_name = self.get_slufied_dirname()
-        new_path = os.path.join(self.config.get('snipper', 'snippet_dir'), self.data['owner']['username'], dir_name)
+        new_path = os.path.join(self.config.get('snipper', 'snippet_dir'), dir_name)
         os.rename(self.repo_path, new_path)
 
     def pull(self):

@@ -119,7 +119,7 @@ def list_snippets(context, verbose):
                 onlyfiles = snippet.get_files()
 
                 for file_name in onlyfiles:
-                    click.secho(os.path.join(item['owner']['username'], snippet_path, file_name))
+                    click.secho(os.path.join(snippet_path, file_name))
 
 @cli.command(name='pull')
 @click.pass_context
