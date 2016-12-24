@@ -4,22 +4,23 @@ from os import path
 import json
 import getpass
 import glob
-import logging
 import sys
 import pathlib
+import configparser
 
 import pyperclip
 import click
 from prompt_toolkit import prompt
-import configparser
 
 from .api import SnippetApi
 from .snippet import Snippet
 from .completer import SnippetFilesCompleter
+from .repo import Repo
 from . import utils
 
 DEFAULT_SNIPPET_DIR = os.path.expanduser('~/.snippets')
 DEFAULT_SNIPPER_CONFIG = os.path.expanduser('~/.snipperrc')
+
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
@@ -106,16 +107,17 @@ def list_snippets(context, verbose):
 
             elif verbose == 'detailed':
                 # Show files in snippet
-                snippet = Snippet(config, item['owner']['username'], item['id'])
+                snippet = Snippet(config, item)
                 snippet_path = snippet.get_path()
 
-                if not snippet_path:
+                if not snippet.is_cloned():
                     msg = '[{}] {} \n Snippet does not exist. Please `pull` changes'
                     click.secho(msg.format(item['id'], item['title']), fg='red')
 
                     continue
 
                 onlyfiles = snippet.get_files()
+
                 for file_name in onlyfiles:
                     click.secho(os.path.join(item['owner']['username'], snippet_path, file_name))
 
@@ -130,24 +132,18 @@ def pull_local_snippets(context):
     api = SnippetApi(config)
     res = api.get_all()
 
-    with open(path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'w') as file:
-        file.write(json.dumps(res))
+    _update_metadata_file(config, res)
 
     for item in res['values']:
+        snippet = Snippet(config, item)
 
-        owner_username = item['owner']['username']
-        snippet_id = item['id']
-        repo_parent = path.join(config.get('snipper', 'snippet_dir'), owner_username)
-
-        # Find snippet dirs which ends with specified snippet_id for checking
-        # snippet cloned before
-
-        # If directory name which end with snippet_id exist, pull changes
-        matched_pats = glob.glob(path.join(repo_parent, '*{}'.format(snippet_id)))
-        if matched_pats:
-            Snippet.pull(matched_pats[0])
+        if snippet.is_cloned():
+            click.secho('[{}] Pulling ...'.format(snippet.snippet_id), fg='blue')
+            snippet.pull()
+            snippet.update_dir_name()
         else:
-            Snippet.clone_by_snippet_id(context.obj, snippet_id)
+            click.secho('[{}] Cloning ...'.format(snippet.snippet_id), fg='blue')
+            snippet.clone()
 
     click.secho('Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
 
@@ -188,11 +184,11 @@ def edit_snippet_file(context, fuzzy, file_path=None):
     repo_dir = os.path.join(config.get('snipper', 'snippet_dir'), parts[0], parts[1])
 
     commit_message = "{} updated".format(os.path.join(*parts[2:]))
-    Snippet.commit(repo_dir, commit_message)
+    Repo.commit(repo_dir, commit_message)
 
     if config.getboolean('snipper', 'auto_push'):
         click.secho('Pushing changes to Bitbucket', fg='blue')
-        Snippet.push(repo_dir)
+        Repo.push(repo_dir)
 
 
 @cli.command(name='add', help='Create new snippet from file[s]/STDIN')
@@ -216,6 +212,7 @@ def add_snippet(context, files, **kwargs):
         content_list.extend(utils.open_files(files))
 
     default_file_name = config.get('snipper', 'default_filename')
+    title = kwargs.get('title', None)
 
     if not sys.stdin.isatty():
         # Read from stdin if stdin has some data
@@ -242,7 +239,11 @@ def add_snippet(context, files, **kwargs):
             if not confirm:
                 sys.exit(1)
 
-        content_list.append((default_file_name, content))
+        if not title:
+            # if title not specified, make first 50 charecters of first line
+            title = content.split('\n')[0][:50]
+
+        content_list.append(('file', (default_file_name, content)))
 
     scm = 'git' if kwargs.get('git') else 'hg'
 
@@ -252,40 +253,72 @@ def add_snippet(context, files, **kwargs):
     response = api.create_snippet(
         content_list,
         not kwargs.get('public', False),
-        kwargs.get('title', None),
+        title,
         scm,
     )
 
     if response.ok:
-        snippet_metadata = response.json()
-
-        Snippet.add_snippet_metadata(config, snippet_metadata)
-        Snippet.clone_by_snippet_id(config, snippet_metadata['id'])
+        snippet = Snippet(config, response.json())
+        snippet.clone()
 
         click.secho('New snippets cloned from Bitbucket', fg='green')
 
         if kwargs.get('copy_url'):
             # Copy snippet url to clipboard
-            pyperclip.copy(snippet_metadata['links']['html']['href'])
+            pyperclip.copy(snippet.data['links']['html']['href'])
             click.secho('URL copied to clipboard', fg='green')
 
 
-
 @cli.command(name='sync', help='Sync snippets with Bitbucket')
+@click.argument('snippet_id', nargs=1, required=False)
 @click.pass_context
-def sync_snippets(context):
+def sync_snippets(context, **kwargs):
     config = context.obj
+    snippet_id = kwargs.get('snippet_id')
 
-    # glob is '*/*'
-    files_depth_2 = glob.glob(os.path.join(config.get('snipper', 'snippet_dir'), '*', '*'))
-    snippet_dirs = filter(lambda x: os.path.isdir(x), files_depth_2)
+    api = SnippetApi(config)
 
-    for snippet_dir in snippet_dirs:
-        # Commit changes if exist before pull new changes from remote.
-        Snippet.commit(snippet_dir, "Snippet updated")
+    click.secho('Downloading snippet meta data from Bitbucket', fg='green')
+    res = api.get_all()
 
-        Snippet.pull(snippet_dir)
-        Snippet.push(snippet_dir)
+    _update_metadata_file(config, res)
+
+    with open(path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
+        data = json.loads(file.read())
+        snippet = None
+
+        for item in data['values']:
+
+            if snippet_id and item['id'] != snippet_id:
+                continue
+
+            # Show files in snippet
+            snippet = Snippet(config, item)
+
+            if not snippet.is_cloned():
+                # If snippet not exist in local, clone snippet
+                click.secho('[{}] {}'.format(item['id'], item.get('title', 'Untitled snippet')), fg='blue')
+                snippet.clone()
+            else:
+                # Commit changes if exist before pull new changes from remote.
+                snippet.commit()
+
+                click.secho('[{}]: Syncing snippet...'.format(item['id']), fg='blue')
+                snippet.pull()
+                snippet.push()
+                snippet.update_dir_name()
+
+        if snippet_id and not snippet:
+            click.secho('Snippet with given id not found: {}'.format(snippet_id), fg='yellow')
+
+
+def _update_metadata_file(config, data):
+    """Update local metadata file that keeps all snippet's data"""
+
+    with open(path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'w') as file:
+        file.write(json.dumps(data))
+
 
 if __name__ == '__main__':
     cli()
+

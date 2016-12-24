@@ -1,79 +1,67 @@
 import os
 import glob
 import json
-import re
-import subprocess
-
-import click
 
 from . import utils
-
+from .repo import Repo
 
 class Snippet(object):
 
-    def __init__(self, config, username, snippet_id):
+    def __init__(self, config, data):
         self.config = config
-        self.username = username
-        self.snippet_id = snippet_id
+        self.data = data
+
+        self.username = data['owner']['username']
+        self.snippet_id = data['id']
 
         self.repo_path = self.get_path()
 
+        if os.path.exists(os.path.join(self.repo_path, '.hg')):
+            self.scm = 'hg'
+        else:
+            self.scm = 'git'
+
+    def is_cloned(self):
+        return os.path.exists(self.get_path())
+
     def get_path(self):
         repo_parent = os.path.join(self.config.get('snipper', 'snippet_dir'), self.username)
+
+        # Find snippet dirs which ends with specified snippet_id for checking
         matched_path = glob.glob(os.path.join(repo_parent, '*{}'.format(self.snippet_id)))
+        if matched_path:
+            return matched_path[0]
 
-        return matched_path[0] if matched_path else None
+        # If snippet dir not found return generated path
+        dir_name = self.get_slufied_dirname()
+        new_path = os.path.join(repo_parent, self.data['owner']['username'], dir_name)
+
+        return new_path
+
+    def get_slufied_dirname(self):
+        slugified_title = utils.slugify(self.data['title'])
+        return "{}-{}".format(slugified_title, self.data['id'])
 
 
-    @staticmethod
-    def clone(url, clone_to):
-        """Clone repo"""
+    def update_dir_name(self):
+        """Rename snippet directory with new title"""
 
-        try:
-            repo_type = re.search(r'^(?:ssh|https)://(git|hg)', url).group(1)
-        except AttributeError:
-            click.secho('You can use snipper only with git or mercurial repositories', fg='red')
+        dir_name = self.get_slufied_dirname()
+        new_path = os.path.join(self.config.get('snipper', 'snippet_dir'), self.data['owner']['username'], dir_name)
+        os.rename(self.repo_path, new_path)
 
-        if repo_type == "hg":
-            subprocess.call(['hg', 'clone', url, clone_to])
-        else:
-            subprocess.call(['git', 'clone', url, clone_to])
-
-    @staticmethod
-    def pull(repo_dir):
+    def pull(self):
         """Pull changes from remote repo"""
+        return Repo.pull(self.repo_path)
 
-        click.secho('Pulling local snippet: {}'.format(repo_dir), fg='blue')
-
-        if os.path.exists(os.path.join(repo_dir, '.hg')):
-            subprocess.call(['hg', 'pull', '--cwd={}'.format(repo_dir)], stderr=subprocess.STDOUT)
-        else:
-            subprocess.call(['git', '--git-dir={}/.git'.format(repo_dir), 'pull'], stderr=subprocess.STDOUT)
-
-    @staticmethod
-    def commit(repo_dir, message):
+    def commit(self, message='Snippet updated'):
         """Commit changes"""
+        return Repo.commit(self.repo_path, message)
 
-        # Go to repo dir
-        os.chdir(repo_dir)
-        if os.path.exists(os.path.join(repo_dir, '.hg')):
-            subprocess.call(['hg', 'add', '.'], stderr=subprocess.STDOUT)
-            subprocess.call(['hg', 'commit', '-m', message], stderr=subprocess.STDOUT)
-        else:
-            subprocess.call(['git', 'add', '-A'], stderr=subprocess.STDOUT)
-            subprocess.call(['git', 'commit', '-m', message], stderr=subprocess.STDOUT)
-
-    @staticmethod
-    def push(repo_dir):
+    def push(self):
         """Push changes to remote"""
 
-        click.secho('Pushing local changes: {}'.format(repo_dir), fg='blue')
-
-        if os.path.exists(os.path.join(repo_dir, '.hg')):
-            subprocess.call(['hg', 'push', '--cwd={}'.format(repo_dir)], stderr=subprocess.STDOUT)
-        else:
-            subprocess.call(['git', '--git-dir={}/.git'.format(repo_dir), 'pull'])
-
+        return Repo.push(self.repo_path)
 
     def get_files(self):
         """ Get files in local snippet directory """
@@ -87,42 +75,20 @@ class Snippet(object):
 
                 return [f for f in os.listdir(self.repo_path) if os.path.isfile(os.path.join(self.repo_path, f))]
 
-    @staticmethod
-    def clone_by_snippet_id(config, snippet_id):
-        """
-        Clone snippet from remote to local by snippet id
-        Using for cloning new created snippet.
-        """
-        metadata_file = os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json')
+    def clone(self):
 
-        with open(metadata_file, 'r') as file:
-            metadata_file_content = json.loads(file.read())
-
-        # Get snippet metadata from metadata file for cloning
-        for item in metadata_file_content['values']:
-            if item['id'] == snippet_id:
-                metadata = item
-                break
-
-        owner_username = metadata['owner']['username']
-        repo_parent = os.path.join(config.get('snipper', 'snippet_dir'), owner_username)
-
-        # Find snippet dirs which ends with specified snippet_id for checking
-        # snippet cloned before
+        metadata = self.data
+        repo_parent = os.path.dirname(self.repo_path)
 
         # Clone repo over ssh (1)
         clone_url = metadata['links']['clone'][1]['href']
-        clone_to = os.path.join(repo_parent, snippet_id)
+        clone_to = os.path.join(repo_parent, self.data['id'])
 
         if metadata['title']:
-
-            slugified_title = utils.slugify(metadata['title'])
-            # Create dir name for snippet for clonning
             # Using title for readablity(<slugified snippet_title>-<snippet_id>)
-            clone_to = os.path.join(repo_parent, "{}-{}".format(slugified_title, snippet_id))
+            clone_to = os.path.join(repo_parent, self.get_slufied_dirname())
 
-        click.secho('Created snippet clonning...', fg='blue')
-        Snippet.clone(clone_url, clone_to=clone_to)
+        Repo.clone(clone_url, clone_to=clone_to)
 
     @staticmethod
     def add_snippet_metadata(config, snippet_metadata):
@@ -137,4 +103,17 @@ class Snippet(object):
 
             file.write(json.dumps(metadata))
 
+    @staticmethod
+    def get_snippet_by_id(config, snippet_id):
 
+        metadata_file = os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json')
+
+        with open(metadata_file, 'r') as file:
+            metadata_file_content = json.loads(file.read())
+
+        # Get snippet metadata from metadata file for cloning
+        for item in metadata_file_content['values']:
+            if item['id'] == snippet_id:
+                return item
+
+        return None
