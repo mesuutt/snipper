@@ -37,7 +37,7 @@ def cli(context, config_file):
     config = configparser.ConfigParser({
         'snippet_dir': DEFAULT_SNIPPET_DIR,
         'verbose': 'detailed',
-        'auto_push': False,
+        'auto_push': True,
         'default_filename': 'snippet.md',
     })
 
