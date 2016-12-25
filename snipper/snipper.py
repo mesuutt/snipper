@@ -4,6 +4,7 @@ import getpass
 import sys
 import configparser
 
+import webbrowser
 import pyperclip
 import click
 from prompt_toolkit import prompt
@@ -277,10 +278,14 @@ def add_snippet(context, files, **kwargs):
 
         click.secho('New snippets cloned from Bitbucket', fg='green')
 
+        snipper_url = snippet.data['links']['html']['href']
         if kwargs.get('copy_url'):
             # Copy snippet url to clipboard
-            pyperclip.copy(snippet.data['links']['html']['href'])
+            pyperclip.copy(snipper_url)
             click.secho('URL copied to clipboard', fg='green')
+
+        if kwargs.get('open'):
+            webbrowser.open_new_tab(snipper_url)
 
         snippet.show_details()
 
