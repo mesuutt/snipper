@@ -195,7 +195,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 @cli.command(name='add', help='Create new snippet from file[s]/STDIN')
 @click.option('--title', '-t', help='Snippet title', default='')
 @click.option('--public', '-p', help='Make snippet public. Private by default', is_flag=True)
-@click.option('--git', '-git', is_flag=True, help='Use git as scm. Mercurial by default')
+@click.option('--hg', '-hg', is_flag=True, help='Use mercurial. Git by default')
 @click.option('--copy-url', '-c', help='Copy resulting URL to clipboard', is_flag=True)
 @click.option('--open', '-o', help='Open snippet URL on browser after create', is_flag=True)
 @click.option('--paste', '-P', help='Create snippet from clipboard', is_flag=True)
@@ -251,7 +251,7 @@ def add_snippet(context, files, **kwargs):
 
         content_list.append(('file', (default_file_name, content)))
 
-    scm = 'git' if kwargs.get('git') else 'hg'
+    scm = 'hg' if kwargs.get('hg') else 'git'
 
     click.secho('Snippet creating...', fg='blue')
 
