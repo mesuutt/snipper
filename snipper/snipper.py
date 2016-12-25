@@ -1,5 +1,4 @@
 import os
-from os import path
 import json
 import getpass
 import sys
@@ -29,7 +28,7 @@ DEFAULT_SNIPPER_CONFIG = os.path.expanduser('~/.snipperrc')
 @click.pass_context
 def cli(context, config_file):
 
-    if not path.exists(config_file):
+    if not os.path.exists(config_file):
         click.secho('Configuration file not found. Plase give me your settings.', fg='red')
         init_snipper(config_file=config_file)
 
@@ -53,7 +52,7 @@ def cli(context, config_file):
 
 def init_snipper(config_file):
 
-    if path.exists(config_file) and not click.confirm('Config file already exist. Overwrite it'):
+    if os.path.exists(config_file) and not click.confirm('Config file already exist. Overwrite it'):
         return
 
     snippet_dir = click.prompt('Where to keep snippets', default=DEFAULT_SNIPPET_DIR)
@@ -67,7 +66,7 @@ def init_snipper(config_file):
     password = getpass.getpass('Bitbucket Password:')
 
     # Create snippet home dir
-    if not path.exists(snippet_dir):
+    if not os.path.exists(snippet_dir):
         os.makedirs(snippet_dir)
 
     config = configparser.ConfigParser()
@@ -98,7 +97,7 @@ def list_snippets(context, verbose):
 
     config.set('snipper', 'verbose', verbose)
 
-    with open(path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
+    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
         data = json.loads(file.read())
 
         for item in data['values']:
@@ -299,7 +298,7 @@ def sync_snippets(context, **kwargs):
 
     _update_metadata_file(config, res)
 
-    with open(path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
+    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
         data = json.loads(file.read())
         snippet = None
 
@@ -331,7 +330,7 @@ def sync_snippets(context, **kwargs):
 def _update_metadata_file(config, data):
     """Update local metadata file that keeps all snippet's data"""
 
-    with open(path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'w') as file:
+    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'w') as file:
         file.write(json.dumps(data))
 
 
