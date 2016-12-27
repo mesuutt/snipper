@@ -175,8 +175,10 @@ def _open_snippet_file(context, param, relative_path):
 @click.pass_context
 def edit_snippet_file(context, fuzzy, file_path=None):
     config = context.obj
+    click.secho('You can search and edit/add file with fuzzy search.', fg="yellow")
+    click.secho('Let\'s write some text. Press Ctrl+c for quit', fg="yellow")
 
-    selected_file = prompt(u'[Add/Edit file] > ', completer=SnippetFilesCompleter(config))
+    selected_file = prompt(u'> ', completer=SnippetFilesCompleter(config))
     file_path = os.path.join(config.get('snipper', 'snippet_dir'), selected_file)
 
     click.edit(filename=file_path)
