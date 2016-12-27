@@ -27,12 +27,13 @@ class BasePathCompleter(Completer):
 
     @staticmethod
     def fuzzyfinder(user_input, collection):
-        # http://blog.amjith.com/fuzzyfinder-in-10-lines-of-python
+        """Find text in collections"""
+
         suggestions = []
         pattern = '.*?'.join(user_input)   # Converts 'djm' to 'd.*?j.*?m'
-        regex = re.compile(pattern, re.IGNORECASE)  # Compiles a regex.
+        regex = re.compile(pattern, re.IGNORECASE)
         for item in collection:
-            match = regex.search(item)   # Checks if the current item matches the regex.
+            match = regex.search(item)
             if match:
                 suggestions.append((len(match.group()), match.start(), item))
 
