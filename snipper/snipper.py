@@ -58,13 +58,16 @@ def init_snipper(config_file):
 
     snippet_dir = click.prompt('Where to keep snippets', default=DEFAULT_SNIPPET_DIR)
     username = click.prompt('Bitbucket username')
-    click.secho(
-        """Password using for authenticating to Bitbucket API.
-        You can create an App Password on Bitbucket settings page.
-        """,
-        fg='blue')
+    password_help_text = '\n'.join([
+        "Password using for authenticating to Bitbucket API.",
+        "Anybody can't login to your Bitbucket account with this password",
+        "You can create an App password that only permitted",
+        "to snippets at settings page on bitbucket.org.",
+    ])
 
-    password = getpass.getpass('Bitbucket Password:')
+    click.secho(password_help_text, fg='blue')
+
+    password = getpass.getpass('App password:')
 
     # Create snippet home dir
     if not os.path.exists(snippet_dir):
