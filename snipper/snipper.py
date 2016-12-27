@@ -73,6 +73,8 @@ def init_snipper(config_file):
     config = configparser.ConfigParser()
     config.read(config_file)
 
+    config.add_section('snipper')
+
     config.set('snipper', 'snippet_dir', snippet_dir)
     config.set('snipper', 'username', username)
     config.set('snipper', 'password', password)
