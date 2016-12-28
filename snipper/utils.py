@@ -4,6 +4,8 @@ import shlex
 import sys
 from subprocess import Popen, PIPE
 
+import click
+
 if sys.version_info >= (3, 3):
     from subprocess import DEVNULL
 else:
@@ -39,3 +41,13 @@ def run_command(cmd):
     # If you will check process same as `process.stderr.read()` process will wait automatically.
 
     return process
+
+
+def secho(config, text, **kwargs):
+    colorize = config.get('snipper', 'colorize')
+
+    if not colorize:
+        kwargs.pop('fg', None)
+
+    click.secho(text, **kwargs)
+
