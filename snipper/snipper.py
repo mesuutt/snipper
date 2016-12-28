@@ -27,17 +27,17 @@ DEFAULT_SNIPPER_CONFIG = os.path.expanduser('~/.snipperrc')
     help='Config file path: Default: {}'.format(DEFAULT_SNIPPER_CONFIG)
 )
 @click.option(
-    '--colorize', '-C',
-    default=True,
+    '--no-color',
+    default=False,
     is_flag=True,
-    help='Colorize output',
+    help='Don\'t colorize output',
 )
 @click.pass_context
-def cli(context, config_file, colorize):
+def cli(context, config_file, no_color, **kwargs):
 
     if not os.path.exists(config_file):
         print('Configuration file not found. Plase give me your settings.')
-        _init_snipper(config_file, colorize)
+        _init_snipper(config_file, not no_color)
 
     # Create config with default values
     config = configparser.ConfigParser({
@@ -45,7 +45,7 @@ def cli(context, config_file, colorize):
         'verbose': 'detailed',
         'auto_push': True,
         'default_filename': 'snippet.md',
-        'colorize': colorize,
+        'colorize': not no_color,
     })
 
     # Overwrite config with user config.
@@ -71,8 +71,7 @@ def _init_snipper(config_file, colorize):
         "to snippets at settings page on bitbucket.org",
     ])
 
-    # Printing colorized help text using click because config not initilized yet
-    click.secho(password_help_text, fg='blue')
+    utils.secho(colorize, password_help_text, fg='blue')
 
     password = getpass.getpass('App password:')
 
@@ -108,6 +107,7 @@ def list_snippets(context, verbose):
     """List local snippets"""
 
     config = context.obj
+    colorize = config.get('snippet', 'colorize')
 
     config.set('snipper', 'verbose', verbose)
 
@@ -117,7 +117,7 @@ def list_snippets(context, verbose):
         for item in data['values']:
 
             if verbose == 'short':
-                utils.secho(config, '[{}] {}'.format(item['id'], item['title']))
+                utils.secho(colorize, '[{}] {}'.format(item['id'], item['title']))
 
             elif verbose == 'detailed':
                 # Show files in snippet
@@ -126,14 +126,14 @@ def list_snippets(context, verbose):
 
                 if not snippet.is_cloned():
                     msg = '[{}] {} \n Snippet does not exist. Please `pull` changes'
-                    utils.secho(config, msg.format(item['id'], item['title']), fg='red')
+                    utils.secho(colorize, msg.format(item['id'], item['title']), fg='red')
 
                     continue
 
                 onlyfiles = snippet.get_files()
 
                 for file_name in onlyfiles:
-                    utils.secho(config, os.path.join(snippet_path, file_name))
+                    utils.secho(colorize, os.path.join(snippet_path, file_name))
 
 @cli.command(name='pull')
 @click.pass_context
@@ -143,6 +143,8 @@ def pull_local_snippets(context):
     Pull existing snippets change and clone new snippets if exists.
     """
     config = context.obj
+    colorize = config.get('snippet', 'colorize')
+
     api = SnippetApi(config)
     res = api.get_all()
 
@@ -152,20 +154,21 @@ def pull_local_snippets(context):
         snippet = Snippet(config, item)
 
         if snippet.is_cloned():
-            utils.secho(config, '[{}] Pulling ...'.format(snippet.snippet_id), fg='blue')
+            utils.secho(colorize, '[{}] Pulling ...'.format(snippet.snippet_id), fg='blue')
             snippet.pull()
             snippet.update_dir_name()
         else:
-            utils.secho(config, '[{}] Cloning ...'.format(snippet.snippet_id), fg='blue')
+            utils.secho(colorize, '[{}] Cloning ...'.format(snippet.snippet_id), fg='blue')
             snippet.clone()
 
-    utils.secho(config, 'Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
+    utils.secho(colorize, 'Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
 
 
 def _open_snippet_file(context, param, relative_path):
     """Open snippet file with default editor"""
 
     config = context.obj
+    colorize = config.get('snippet', 'colorize')
 
     if not relative_path or context.resilient_parsing:
         return
@@ -175,7 +178,7 @@ def _open_snippet_file(context, param, relative_path):
     if os.path.exists(file_path):
         click.edit(filename=file_path)
     else:
-        utils.secho(config, 'File not exist. Exiting ...', fg='red')
+        utils.secho(colorize, 'File not exist. Exiting ...', fg='red')
 
     context.exit()
 
@@ -190,8 +193,10 @@ def _open_snippet_file(context, param, relative_path):
 @click.pass_context
 def edit_snippet_file(context, fuzzy, file_path=None):
     config = context.obj
-    utils.secho(config, 'You can search and edit/add file with fuzzy search.', fg="yellow")
-    utils.secho(config, 'Let\'s write some text. Press Ctrl+c for quit', fg="yellow")
+    colorize = config.get('snippet', 'colorize')
+
+    utils.secho(colorize, 'You can search and edit/add file with fuzzy search.', fg="yellow")
+    utils.secho(colorize, 'Let\'s write some text. Press Ctrl+c for quit', fg="yellow")
 
     selected_file = prompt(u'> ', completer=SnippetFilesCompleter(config))
     file_path = os.path.join(config.get('snipper', 'snippet_dir'), selected_file)
@@ -205,7 +210,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
     Repo.commit(repo_dir, commit_message)
 
     if config.getboolean('snipper', 'auto_push'):
-        utils.secho(config, 'Pushing changes to Bitbucket', fg='blue')
+        utils.secho(colorize, 'Pushing changes to Bitbucket', fg='blue')
         Repo.push(repo_dir)
 
 
@@ -222,6 +227,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 def add_snippet(context, files, **kwargs):
 
     config = context.obj
+    colorize = config.get('snippet', 'colorize')
 
     content_list = utils.open_files(kwargs.get('file'))
 
@@ -254,7 +260,7 @@ def add_snippet(context, files, **kwargs):
         content = click.edit()
 
         if content is None:
-            utils.secho(config, 'Empty content. Exiting', fg='red')
+            utils.secho(colorize, 'Empty content. Exiting', fg='red')
             sys.exit(1)
 
         if content == '':
@@ -270,7 +276,7 @@ def add_snippet(context, files, **kwargs):
 
     scm = 'hg' if kwargs.get('hg') else 'git'
 
-    utils.secho(config, 'Snippet creating...', fg='blue')
+    utils.secho(colorize, 'Snippet creating...', fg='blue')
 
     api = SnippetApi(config)
     response = api.create_snippet(
@@ -293,13 +299,13 @@ def add_snippet(context, files, **kwargs):
 
         snippet.clone()
 
-        utils.secho(config, 'New snippets cloned from Bitbucket', fg='green')
+        utils.secho(colorize, 'New snippets cloned from Bitbucket', fg='green')
 
         snipper_url = snippet.data['links']['html']['href']
         if kwargs.get('copy_url'):
             # Copy snippet url to clipboard
             pyperclip.copy(snipper_url)
-            utils.secho(config, 'URL copied to clipboard', fg='green')
+            utils.secho(colorize, 'URL copied to clipboard', fg='green')
 
         if kwargs.get('open'):
             webbrowser.open_new_tab(snipper_url)
@@ -311,11 +317,12 @@ def add_snippet(context, files, **kwargs):
 @click.pass_context
 def sync_snippets(context, **kwargs):
     config = context.obj
+    colorize = config.get('snippet', 'colorize')
     snippet_id = kwargs.get('snippet_id')
 
     api = SnippetApi(config)
 
-    utils.secho(config, 'Downloading snippet meta data from Bitbucket', fg='green')
+    utils.secho(colorize, 'Downloading snippet meta data from Bitbucket', fg='green')
     res = api.get_all()
 
     _update_metadata_file(config, res)
@@ -334,19 +341,19 @@ def sync_snippets(context, **kwargs):
 
             if not snippet.is_cloned():
                 # If snippet not exist in local, clone snippet
-                utils.secho(config, '[{}] {}'.format(item['id'], item.get('title', 'Untitled snippet')), fg='blue')
+                utils.secho(colorize, '[{}] {}'.format(item['id'], item.get('title', 'Untitled snippet')), fg='blue')
                 snippet.clone()
             else:
                 # Commit changes if exist before pull new changes from remote.
                 snippet.commit()
 
-                utils.secho(config, '[{}]: Syncing snippet...'.format(item['id']), fg='blue')
+                utils.secho(colorize, '[{}]: Syncing snippet...'.format(item['id']), fg='blue')
                 snippet.pull()
                 snippet.push()
                 snippet.update_dir_name()
 
         if snippet_id and not snippet:
-            utils.secho(config, 'Snippet with given id not found: {}'.format(snippet_id), fg='yellow')
+            utils.secho(colorize, 'Snippet with given id not found: {}'.format(snippet_id), fg='yellow')
 
 
 def _update_metadata_file(config, data):

@@ -43,11 +43,12 @@ def run_command(cmd):
     return process
 
 
-def secho(config, text, **kwargs):
-    colorize = config.get('snipper', 'colorize')
+def secho(colorize, text, **kwargs):
+    """Print text colorized or not colorized"""
 
     if not colorize:
         kwargs.pop('fg', None)
+        kwargs.pop('bg', None)
 
     click.secho(text, **kwargs)
 
