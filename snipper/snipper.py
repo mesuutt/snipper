@@ -66,7 +66,7 @@ def _init_snipper(config_file, colorize):
     snippet_dir = click.prompt('Where to keep snippets', default=DEFAULT_SNIPPET_DIR)
     username = click.prompt('Bitbucket username')
     password_help_text = '\n'.join([
-        "Password using for authenticating to Bitbucket API for accessing snippets.",
+        "You should give me a password for authenticating to Bitbucket API for accessing your snippets.",
         "You can create an app password that only permitted",
         "to snippets at settings page on bitbucket.org",
     ])
