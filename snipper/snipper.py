@@ -45,7 +45,7 @@ def cli(context, config_file, no_color, **kwargs):
         'verbose': 'detailed',
         'auto_push': 'yes',
         'default_filename': 'snippet.md',
-        'colorize': not no_color,
+        'colorize': 'no' if no_color else 'yes',
     })
 
     # Overwrite config with user config.
@@ -88,7 +88,7 @@ def _init_snipper(config_file, colorize):
     config.set('snipper', 'username', username)
     config.set('snipper', 'password', password)
     config.set('snipper', 'verbose', 'detailed')
-    config.set('snipper', 'colorize', colorize)
+    config.set('snipper', 'colorize', 'True' if colorize else 'False')
 
     config.write(open(config_file, 'w'))
 
@@ -107,7 +107,7 @@ def list_snippets(context, verbose):
     """List local snippets"""
 
     config = context.obj
-    colorize = config.get('snippet', 'colorize')
+    colorize = config.getboolean('snipper', 'colorize')
 
     config.set('snipper', 'verbose', verbose)
 
@@ -143,7 +143,7 @@ def pull_local_snippets(context):
     Pull existing snippets change and clone new snippets if exists.
     """
     config = context.obj
-    colorize = config.get('snippet', 'colorize')
+    colorize = config.getboolean('snipper', 'colorize')
 
     api = SnippetApi(config)
     res = api.get_all()
@@ -168,7 +168,7 @@ def _open_snippet_file(context, param, relative_path):
     """Open snippet file with default editor"""
 
     config = context.obj
-    colorize = config.get('snippet', 'colorize')
+    colorize = config.getboolean('snipper', 'colorize')
 
     if not relative_path or context.resilient_parsing:
         return
@@ -193,7 +193,7 @@ def _open_snippet_file(context, param, relative_path):
 @click.pass_context
 def edit_snippet_file(context, fuzzy, file_path=None):
     config = context.obj
-    colorize = config.get('snippet', 'colorize')
+    colorize = config.getboolean('snipper', 'colorize')
 
     utils.secho(colorize, 'You can search and edit/add file with fuzzy search.', fg="yellow")
     utils.secho(colorize, 'Let\'s write some text. Press Ctrl+c for quit', fg="yellow")
@@ -227,7 +227,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 def add_snippet(context, files, **kwargs):
 
     config = context.obj
-    colorize = config.get('snippet', 'colorize')
+    colorize = config.getboolean('snipper', 'colorize')
 
     content_list = utils.open_files(kwargs.get('file'))
 
@@ -317,7 +317,7 @@ def add_snippet(context, files, **kwargs):
 @click.pass_context
 def sync_snippets(context, **kwargs):
     config = context.obj
-    colorize = config.get('snippet', 'colorize')
+    colorize = config.getboolean('snipper', 'colorize')
     snippet_id = kwargs.get('snippet_id')
 
     api = SnippetApi(config)
