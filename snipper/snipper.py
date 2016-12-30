@@ -221,7 +221,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 @click.option('--copy-url', '-c', help='Copy resulting URL to clipboard', is_flag=True)
 @click.option('--open', '-o', help='Open snippet URL on browser after create', is_flag=True)
 @click.option('--paste', '-P', help='Create snippet from clipboard', is_flag=True)
-@click.option('--file', '-f', type=click.Path(exists=True), help='Create snippet from file', multiple=True)
+@click.option('--filename', '-f', help='Filename. Used when content read from STDIN')
 @click.argument('files', nargs=-1)
 @click.pass_context
 def new_snippet(context, files, **kwargs):
@@ -229,7 +229,7 @@ def new_snippet(context, files, **kwargs):
     config = context.obj
     colorize = config.getboolean('snipper', 'colorize')
 
-    content_list = utils.open_files(kwargs.get('file'))
+    content_list = []
 
     if files:
         # Read files given as positional parameter
@@ -240,8 +240,9 @@ def new_snippet(context, files, **kwargs):
 
     if not sys.stdin.isatty():
         # Read from stdin if stdin has some data
+        filename = kwargs.get('filename', default_file_name)
         streamed_data = sys.stdin.read()
-        content_list.append(('file', (default_file_name, streamed_data,),))
+        content_list.append(('file', (filename, streamed_data,),))
 
     if kwargs.get('paste'):
         # Read from clipboard
