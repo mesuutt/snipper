@@ -214,7 +214,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
         Repo.push(repo_dir)
 
 
-@cli.command(name='add', help='Create new snippet from file[s]/STDIN')
+@cli.command(name='new', help='Create new snippet from file[s]/STDIN')
 @click.option('--title', '-t', help='Snippet title', default='')
 @click.option('--public', '-p', help='Make snippet public. Private by default', is_flag=True)
 @click.option('--hg', '-hg', is_flag=True, help='Use mercurial. Git by default')
@@ -224,7 +224,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 @click.option('--file', '-f', type=click.Path(exists=True), help='Create snippet from file', multiple=True)
 @click.argument('files', nargs=-1)
 @click.pass_context
-def add_snippet(context, files, **kwargs):
+def new_snippet(context, files, **kwargs):
 
     config = context.obj
     colorize = config.getboolean('snipper', 'colorize')
