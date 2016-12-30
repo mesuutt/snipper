@@ -299,7 +299,7 @@ def new_snippet(context, files, **kwargs):
 
         snippet.clone()
 
-        utils.secho(colorize, 'New snippets cloned from Bitbucket', fg='green')
+        utils.secho(colorize, 'Created snippet cloned from Bitbucket', fg='green')
 
         snipper_url = snippet.data['links']['html']['href']
         if kwargs.get('copy_url'):
