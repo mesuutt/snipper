@@ -221,7 +221,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 @click.option('--copy-url', '-c', help='Copy resulting URL to clipboard', is_flag=True)
 @click.option('--open', '-o', help='Open snippet URL on browser after create', is_flag=True)
 @click.option('--paste', '-P', help='Create snippet from clipboard', is_flag=True)
-@click.option('--filename', '-f', help='Filename. Used when content read from STDIN')
+@click.option('--filename', '-f', help='Used when content read from STDIN or clipboard')
 @click.argument('files', nargs=-1)
 @click.pass_context
 def new_snippet(context, files, **kwargs):
@@ -235,14 +235,13 @@ def new_snippet(context, files, **kwargs):
         # Read files given as positional parameter
         content_list.extend(utils.open_files(files))
 
-    default_file_name = config.get('snipper', 'default_filename')
+    default_filename = kwargs.get('filename', config.get('snipper', 'default_filename'))
     title = kwargs.get('title', None)
 
     if not sys.stdin.isatty():
         # Read from stdin if stdin has some data
-        filename = kwargs.get('filename', default_file_name)
         streamed_data = sys.stdin.read()
-        content_list.append(('file', (filename, streamed_data,),))
+        content_list.append(('file', (default_filename, streamed_data,),))
 
     if kwargs.get('paste'):
         # Read from clipboard
@@ -253,7 +252,7 @@ def new_snippet(context, files, **kwargs):
                 # if title not specified, make first 50 charecters of first line
                 title = clipboard_text.split('\n')[0][:50]
 
-            content_list.append(('file', (default_file_name, clipboard_text)))
+            content_list.append(('file', (default_filename, clipboard_text)))
 
     if not content_list:
 
@@ -273,7 +272,7 @@ def new_snippet(context, files, **kwargs):
             # if title not specified, make first 50 charecters of first line
             title = content.split('\n')[0][:50]
 
-        content_list.append(('file', (default_file_name, content)))
+        content_list.append(('file', (default_filename, content)))
 
     scm = 'hg' if kwargs.get('hg') else 'git'
 
