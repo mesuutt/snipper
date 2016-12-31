@@ -312,6 +312,7 @@ def new_snippet(context, files, **kwargs):
 
         snippet.show_details()
 
+
 @cli.command(name='sync', help='Sync snippets with Bitbucket')
 @click.argument('snippet_id', nargs=1, required=False)
 @click.pass_context
@@ -358,7 +359,6 @@ def sync_snippets(context, **kwargs):
 
 def _update_metadata_file(config, data):
     """Update local metadata file that keeps all snippet's data"""
-
     with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'w') as file:
         file.write(json.dumps(data))
 
