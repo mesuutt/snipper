@@ -3,10 +3,13 @@ import json
 import getpass
 import sys
 import configparser
+import re
+import glob
+import shutil
 
-import webbrowser
-import pyperclip
 import click
+import pyperclip
+import webbrowser
 from prompt_toolkit import prompt
 
 from .api import SnippetApi
@@ -228,31 +231,39 @@ def new_snippet(context, files, **kwargs):
 
     config = context.obj
     colorize = config.getboolean('snipper', 'colorize')
-
     content_list = []
 
     if files:
         # Read files given as positional parameter
         content_list.extend(utils.open_files(files))
 
-    default_filename = kwargs.get('filename', config.get('snipper', 'default_filename'))
+    # if filename is not specified, it is exist everytime as None
+    # so kwargs.get('filename', default_val) not working
+    filename = kwargs.get('filename')
+    if not filename:
+        filename = config.get('snipper', 'default_filename')
+
     title = kwargs.get('title', None)
 
+    # Read from STDIN of clipboard but not both
     if not sys.stdin.isatty():
         # Read from stdin if stdin has some data
         streamed_data = sys.stdin.read()
-        content_list.append(('file', (default_filename, streamed_data,),))
-
-    if kwargs.get('paste'):
+        content_list.append(('file', (filename, streamed_data,),))
+        utils.secho(colorize, 'New file created from STDIN', fg='blue')
+    elif kwargs.get('paste'):
         # Read from clipboard
         clipboard_text = pyperclip.paste()
         if clipboard_text:
 
             if not title:
-                # if title not specified, make first 50 charecters of first line
+                # if title not specified, make title first 50 charecters of first line
                 title = clipboard_text.split('\n')[0][:50]
 
-            content_list.append(('file', (default_filename, clipboard_text)))
+            content_list.append(('file', (filename, clipboard_text)))
+            utils.secho(colorize, 'New file created from clipboard content', fg='blue')
+        else:
+            utils.secho(colorize, 'Clipboard is empty, ignoring', fg='yellow')
 
     if not content_list:
 
@@ -272,7 +283,7 @@ def new_snippet(context, files, **kwargs):
             # if title not specified, make first 50 charecters of first line
             title = content.split('\n')[0][:50]
 
-        content_list.append(('file', (default_filename, content)))
+        content_list.append(('file', (filename, content)))
 
     scm = 'hg' if kwargs.get('hg') else 'git'
 
