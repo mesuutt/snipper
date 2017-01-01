@@ -14,7 +14,7 @@ from prompt_toolkit import prompt
 
 from .api import SnippetApi
 from .snippet import Snippet
-from .completer import SnippetFilesCompleter, SnippetDirCompleter, ValidateSnippetDir
+from .completer import SnippetFilesCompleter, SnippetDirCompleter, ValidateSnippetDir, ValidateSnippetFile
 from .repo import Repo
 from . import utils
 
@@ -198,10 +198,14 @@ def edit_snippet_file(context, fuzzy, file_path=None):
     config = context.obj
     colorize = config.getboolean('snipper', 'colorize')
 
-    utils.secho(colorize, 'You can search and edit/add file with fuzzy search.', fg="yellow")
+    utils.secho(colorize, 'Select a file for edit with fuzzy search.', fg="yellow")
     utils.secho(colorize, 'Let\'s write some text. Press Ctrl+c for quit', fg="yellow")
 
-    selected_file = prompt(u'> ', completer=SnippetFilesCompleter(config))
+    selected_file = prompt(
+        u'> ',
+        completer=SnippetFilesCompleter(config),
+        validator=ValidateSnippetFile(config)
+    )
     file_path = os.path.join(config.get('snipper', 'snippet_dir'), selected_file)
 
     click.edit(filename=file_path)
@@ -376,7 +380,7 @@ def add_to_snippet(context, files, **kwargs):
     selected_snippet_dirname = None
 
     if not kwargs.get('to'):
-        utils.secho(colorize, 'Select snippet to add file', fg="yellow")
+        utils.secho(colorize, 'Select snippet to add file with fuzzy search.', fg="yellow")
         utils.secho(colorize, 'Let\'s write some text. Press Ctrl+c for quit', fg="yellow")
         selected_snippet_dirname = prompt(
             u'> ',
