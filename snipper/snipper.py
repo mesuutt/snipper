@@ -97,11 +97,10 @@ def _init_snipper(config_file, colorize):
 
 
 @cli.command(name='ls')
-@click.option('-v', 'verbose', flag_value='short', help='Provides short listing')
+@click.option('-v', 'verbose', default=True, flag_value='short', help='Provides short listing')
 @click.option(
     '-vv',
     'verbose',
-    default=True,
     flag_value='detailed',
     help='Provides the most detailed listing'
 )
