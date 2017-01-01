@@ -3,6 +3,7 @@ import re
 
 from .utils import run_command
 
+
 class Repo:
 
     @staticmethod
@@ -20,7 +21,6 @@ class Repo:
     @staticmethod
     def pull(repo_dir):
         """Pull changes from remote repo"""
-
         os.chdir(repo_dir)
 
         if os.path.exists(os.path.join(repo_dir, '.hg')):
@@ -31,7 +31,6 @@ class Repo:
     @staticmethod
     def push(repo_dir):
         """Push changes to remote"""
-
         os.chdir(repo_dir)
 
         if os.path.exists(os.path.join(repo_dir, '.hg')):
@@ -42,7 +41,6 @@ class Repo:
     @staticmethod
     def commit(repo_dir, message):
         """Commit changes"""
-
         os.chdir(repo_dir)
 
         if os.path.exists(os.path.join(repo_dir, '.hg')):

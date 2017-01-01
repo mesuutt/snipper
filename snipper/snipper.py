@@ -488,6 +488,5 @@ def _print_snippet_dirs(config, relative=True):
         utils.secho(colorize, path, fg='yellow')
 
 
-
 if __name__ == '__main__':
     cli()
