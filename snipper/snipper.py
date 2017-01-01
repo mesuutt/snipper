@@ -135,8 +135,7 @@ def list_snippets(context, verbose):
 @cli.command(name='pull')
 @click.pass_context
 def pull_local_snippets(context):
-    """
-    Update local snippets from Bitbucket.
+    """Update local snippets from Bitbucket.
 
     Pull changes of existing snippets and clone new snippets.
     """
@@ -486,7 +485,6 @@ def _print_snippet_dirs(config, relative=True):
         snippet = Snippet(config, item)
         path = snippet.get_slufied_dirname() if relative else snippet.get_path()
         utils.secho(colorize, path, fg='yellow')
-
 
 
 if __name__ == '__main__':

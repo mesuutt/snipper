@@ -12,9 +12,9 @@ if sys.version_info >= (3, 3):
 else:
     DEVNULL = open(os.devnull, 'w')
 
+
 def open_files(filelist):
     """Open files for upload"""
-
     files = []
     for file_path in filelist:
         if not os.path.exists(file_path):
@@ -30,10 +30,8 @@ def slugify(text):
     return re.sub(r'\W+', '-', text).lower()
 
 
-
 def run_command(cmd):
     """Run command on shell"""
-
     # This commands will run in background.
     # So can return before process completed.
     process = Popen(shlex.split(cmd), stderr=PIPE, stdout=DEVNULL, universal_newlines=True)
@@ -46,7 +44,6 @@ def run_command(cmd):
 
 def secho(colorize, text, **kwargs):
     """Print text colorized or not colorized"""
-
     if not colorize:
         kwargs.pop('fg', None)
         kwargs.pop('bg', None)

@@ -5,6 +5,7 @@ import json
 from . import utils
 from .repo import Repo
 
+
 class Snippet(object):
 
     def __init__(self, config, data):
@@ -57,7 +58,6 @@ class Snippet(object):
 
     def push(self):
         """Push changes to remote"""
-
         return Repo.push(self.repo_path)
 
     def get_files(self):
@@ -89,8 +89,6 @@ class Snippet(object):
             lambda x: x['name'] == self.config.get('snipper', 'protocol'),
             self.data['links']['clone']
         )))['href']
-
-
 
     def show_details(self):
 
