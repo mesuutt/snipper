@@ -2,6 +2,7 @@ import os
 import re
 import shlex
 import sys
+import json
 from subprocess import Popen, PIPE
 
 import click
@@ -75,3 +76,21 @@ def get_incremented_file_path(file_path):
         i += 1
 
     return new_path
+
+
+def read_metafile(config, owner=None):
+    """Read meta file content"""
+    if not owner:
+        owner = config.get('snipper', 'username')
+
+    with open(os.path.join(config.get('snipper', 'snippet_dir'), '{}.json'.format(owner)), 'r') as file:
+        return json.loads(file.read())
+
+
+def update_metafile(config, data, owner=None):
+    """Update local metadata file that keeps all snippet's data"""
+    if not owner:
+        owner = config.get('snipper', 'username')
+
+    with open(os.path.join(config.get('snipper', 'snippet_dir'), '{}.json'.format(owner)), 'w') as file:
+        file.write(json.dumps(data))

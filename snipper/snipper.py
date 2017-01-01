@@ -14,7 +14,7 @@ from prompt_toolkit import prompt
 
 from .api import SnippetApi
 from .snippet import Snippet
-from .completer import SnippetFilesCompleter
+from .completer import SnippetFilesCompleter, SnippetDirCompleter, ValidateSnippetDir
 from .repo import Repo
 from . import utils
 
@@ -113,7 +113,7 @@ def list_snippets(context, verbose):
 
     config.set('snipper', 'verbose', verbose)
 
-    data = _read_metafile(config)
+    data = utils.read_metafile(config)
 
     for item in data['values']:
 
@@ -151,7 +151,7 @@ def pull_local_snippets(context):
     api = SnippetApi(config)
     res = api.get_all()
 
-    _update_metafile(config, res)
+    utils.update_metafile(config, res)
 
     for item in res['values']:
         snippet = Snippet(config, item)
@@ -301,9 +301,9 @@ def new_snippet(context, files, **kwargs):
         snippet = Snippet(config, response.json())
 
         # Update metadata file
-        metadata = _read_metafile(config)
+        metadata = utils.read_metafile(config)
         metadata['values'].append(response.json())
-        _update_metafile(config, metadata)
+        utils.update_metafile(config, metadata)
 
         snippet.clone()
 
@@ -334,7 +334,7 @@ def sync_snippets(context, **kwargs):
     utils.secho(colorize, 'Downloading snippet meta data from Bitbucket', fg='green')
     data = api.get_all()
 
-    _update_metafile(config, data)
+    utils.update_metafile(config, data)
 
     snippet = None
     for item in data['values']:
@@ -363,7 +363,7 @@ def sync_snippets(context, **kwargs):
 
 
 @cli.command(name='add', help='Add file[s] to snippet')
-@click.argument('to', nargs=1, required=True)
+@click.argument('to', nargs=1, required=False)
 @click.argument('files', nargs=-1, type=click.Path(exists=True))
 @click.option('--filename', '-f', help='Used when content read from STDIN or clipboard')
 @click.option('--open', '-o', help='Open snippet URL on browser after file added', is_flag=True)
@@ -373,22 +373,26 @@ def sync_snippets(context, **kwargs):
 def add_to_snippet(context, files, **kwargs):
     config = context.obj
     colorize = config.getboolean('snipper', 'colorize')
-    snippet_dir_path_regex = re.search('(?:.*)?([\w]{5})$', kwargs.get('to', ''))
+    selected_snippet_dirname = None
 
-    def print_snippet_dirs(relative=True):
-        data = _read_metafile(config)
+    if not kwargs.get('to'):
+        utils.secho(colorize, 'Select snippet to add file', fg="yellow")
+        utils.secho(colorize, 'Let\'s write some text. Press Ctrl+c for quit', fg="yellow")
+        selected_snippet_dirname = prompt(
+            u'> ',
+            completer=SnippetDirCompleter(config),
+            validator=ValidateSnippetDir(config)
+        )
 
-        for item in data['values']:
-            # Show files in snippet
-            snippet = Snippet(config, item)
-            path = snippet.get_slufied_dirname() if relative else snippet.get_path()
-            utils.secho(colorize, path, fg='yellow')
+    if not selected_snippet_dirname:
+        selected_snippet_dirname = kwargs.get('to', '')
 
+    snippet_dir_path_regex = re.search('(?:.*)?([\w]{5})$', selected_snippet_dirname)
     if not snippet_dir_path_regex:
         utils.secho(colorize, 'Give me path of snippet directory or snippet id', fg='red')
         utils.secho(colorize, 'Existing snippet directories:', fg='blue')
 
-        print_snippet_dirs(relative=True)
+        _print_snippet_dirs(config, relative=True)
         sys.exit(1)
 
     snippet_id = snippet_dir_path_regex.group(1)
@@ -398,7 +402,7 @@ def add_to_snippet(context, files, **kwargs):
         utils.secho(colorize, 'Please pipe content from STDIN or use -P for getting content from clipboard but not both.', fg='red')
         sys.exit(1)
 
-    data = _read_metafile(config)
+    data = utils.read_metafile(config)
     repo_parent = config.get('snipper', 'snippet_dir')
     snippet = None
 
@@ -474,16 +478,16 @@ def add_to_snippet(context, files, **kwargs):
         snippet.push()
 
 
-def _update_metafile(config, data):
-    """Update local metadata file that keeps all snippet's data"""
-    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'w') as file:
-        file.write(json.dumps(data))
+def _print_snippet_dirs(config, relative=True):
+    colorize = config.getboolean('snipper', 'colorize')
+    data = utils.read_metafile(config)
 
+    for item in data['values']:
+        # Show files in snippet
+        snippet = Snippet(config, item)
+        path = snippet.get_slufied_dirname() if relative else snippet.get_path()
+        utils.secho(colorize, path, fg='yellow')
 
-def _read_metafile(config, owner='metadata.json'):
-    """Read meta file content"""
-    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
-        return json.loads(file.read())
 
 
 if __name__ == '__main__':

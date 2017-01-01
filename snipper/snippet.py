@@ -41,10 +41,8 @@ class Snippet(object):
         slugified_title = utils.slugify(self.data['title'])
         return "{}-{}".format(slugified_title, self.data['id'])
 
-
     def update_dir_name(self):
         """Rename snippet directory with new title"""
-
         dir_name = self.get_slufied_dirname()
         new_path = os.path.join(self.config.get('snipper', 'snippet_dir'), dir_name)
         os.rename(self.repo_path, new_path)

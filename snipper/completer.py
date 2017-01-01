@@ -3,9 +3,10 @@ import json
 import re
 
 from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.validation import Validator, ValidationError
 
 from .snippet import Snippet
-
+from . import utils
 
 
 class BasePathCompleter(Completer):
@@ -28,7 +29,6 @@ class BasePathCompleter(Completer):
     @staticmethod
     def fuzzyfinder(user_input, collection):
         """Find text in collections"""
-
         suggestions = []
         pattern = '.*?'.join(user_input)   # Converts 'djm' to 'd.*?j.*?m'
         regex = re.compile(pattern, re.IGNORECASE)
@@ -55,3 +55,48 @@ class SnippetFilesCompleter(BasePathCompleter):
                 file_dir = os.path.split(snippet.get_path())[1]
                 for file_name in snippet.get_files():
                     self.collection.append(os.path.join(file_dir, file_name))
+
+
+class SnippetDirCompleter(BasePathCompleter):
+
+    def __init__(self, config):
+        super(SnippetDirCompleter, self).__init__()
+
+        data = utils.read_metafile(config)
+
+        for item in data['values']:
+            snippet = Snippet(config, item)
+            dir_name = snippet.get_slufied_dirname()
+            if not dir_name:
+                continue
+
+            self.collection.append(dir_name)
+
+class ValidateSnippetFile(Validator):
+
+    def __init__(self, config):
+        super(ValidateSnippetFile, self).__init__()
+        self.config = config
+
+    def validate(self, document):
+        text_len = len(document.text)
+        snippet_dir = document.text
+        snippet_root = self.config.get('snipper', 'snippet_dir')
+
+        if not os.path.exists(os.path.join(snippet_root, snippet_dir)):
+            raise ValidationError(message="Please select existing snippet", cursor_position=text_len)
+
+
+class ValidateSnippetDir(Validator):
+
+    def __init__(self, config):
+        super(ValidateSnippetDir, self).__init__()
+        self.config = config
+
+    def validate(self, document):
+        text_len = len(document.text)
+        snippet_dir = document.text
+        snippet_root = self.config.get('snipper', 'snippet_dir')
+
+        if not os.path.exists(os.path.join(snippet_root, snippet_dir)):
+            raise ValidationError(message="Please select existing snippet", cursor_position=text_len)
