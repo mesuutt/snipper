@@ -113,29 +113,28 @@ def list_snippets(context, verbose):
 
     config.set('snipper', 'verbose', verbose)
 
-    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
-        data = json.loads(file.read())
+    data = _read_metafile(config)
 
-        for item in data['values']:
+    for item in data['values']:
 
-            if verbose == 'short':
-                utils.secho(colorize, '[{}] {}'.format(item['id'], item['title']))
+        if verbose == 'short':
+            utils.secho(colorize, '[{}] {}'.format(item['id'], item['title']))
 
-            elif verbose == 'detailed':
-                # Show files in snippet
-                snippet = Snippet(config, item)
-                snippet_path = snippet.get_path()
+        elif verbose == 'detailed':
+            # Show files in snippet
+            snippet = Snippet(config, item)
+            snippet_path = snippet.get_path()
 
-                if not snippet.is_cloned():
-                    msg = '[{}] {} \n Snippet does not exist. Please `pull` changes'
-                    utils.secho(colorize, msg.format(item['id'], item['title']), fg='red')
+            if not snippet.is_cloned():
+                msg = '[{}] {} \n Snippet does not exist. Please `pull` changes'
+                utils.secho(colorize, msg.format(item['id'], item['title']), fg='red')
 
-                    continue
+                continue
 
-                onlyfiles = snippet.get_files()
+            onlyfiles = snippet.get_files()
 
-                for file_name in onlyfiles:
-                    utils.secho(colorize, os.path.join(snippet_path, file_name))
+            for file_name in onlyfiles:
+                utils.secho(colorize, os.path.join(snippet_path, file_name))
 
 
 @cli.command(name='pull')
@@ -152,7 +151,7 @@ def pull_local_snippets(context):
     api = SnippetApi(config)
     res = api.get_all()
 
-    _update_metadata_file(config, res)
+    _update_metafile(config, res)
 
     for item in res['values']:
         snippet = Snippet(config, item)
@@ -301,13 +300,10 @@ def new_snippet(context, files, **kwargs):
     if response.ok:
         snippet = Snippet(config, response.json())
 
-        # Add new created snippet metadata to file
-        metadata_file = os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json')
-        with open(metadata_file, 'r+') as file:
-            metadata = json.loads(file.read())
-            file.seek(0)
-            metadata['values'].append(response.json())
-            file.write(json.dumps(metadata))
+        # Update metadata file
+        metadata = _read_metafile(config)
+        metadata['values'].append(response.json())
+        _update_metafile(config, metadata)
 
         snippet.clone()
 
@@ -336,37 +332,34 @@ def sync_snippets(context, **kwargs):
     api = SnippetApi(config)
 
     utils.secho(colorize, 'Downloading snippet meta data from Bitbucket', fg='green')
-    res = api.get_all()
+    data = api.get_all()
 
-    _update_metadata_file(config, res)
+    _update_metafile(config, data)
 
-    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
-        data = json.loads(file.read())
-        snippet = None
+    snippet = None
+    for item in data['values']:
 
-        for item in data['values']:
+        if snippet_id and item['id'] != snippet_id:
+            continue
 
-            if snippet_id and item['id'] != snippet_id:
-                continue
+        # Show files in snippet
+        snippet = Snippet(config, item)
 
-            # Show files in snippet
-            snippet = Snippet(config, item)
+        if not snippet.is_cloned():
+            # If snippet not exist in local, clone snippet
+            utils.secho(colorize, '[{}] {}'.format(item['id'], item.get('title', 'Untitled snippet')), fg='blue')
+            snippet.clone()
+        else:
+            # Commit changes if exist before pull new changes from remote.
+            snippet.commit()
 
-            if not snippet.is_cloned():
-                # If snippet not exist in local, clone snippet
-                utils.secho(colorize, '[{}] {}'.format(item['id'], item.get('title', 'Untitled snippet')), fg='blue')
-                snippet.clone()
-            else:
-                # Commit changes if exist before pull new changes from remote.
-                snippet.commit()
+            utils.secho(colorize, '[{}]: Syncing snippet...'.format(item['id']), fg='blue')
+            snippet.pull()
+            snippet.push()
+            snippet.update_dir_name()
 
-                utils.secho(colorize, '[{}]: Syncing snippet...'.format(item['id']), fg='blue')
-                snippet.pull()
-                snippet.push()
-                snippet.update_dir_name()
-
-        if snippet_id and not snippet:
-            utils.secho(colorize, 'Snippet with given id not found: {}'.format(snippet_id), fg='yellow')
+    if snippet_id and not snippet:
+        utils.secho(colorize, 'Snippet with given id not found: {}'.format(snippet_id), fg='yellow')
 
 
 @cli.command(name='add', help='Add file[s] to snippet')
@@ -383,14 +376,13 @@ def add_to_snippet(context, files, **kwargs):
     snippet_dir_path_regex = re.search('(?:.*)?([\w]{5})$', kwargs.get('to', ''))
 
     def print_snippet_dirs(relative=True):
-        with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
-            data = json.loads(file.read())
+        data = _read_metafile(config)
 
-            for item in data['values']:
-                # Show files in snippet
-                snippet = Snippet(config, item)
-                path = snippet.get_slufied_dirname() if relative else snippet.get_path()
-                utils.secho(colorize, path, fg='yellow')
+        for item in data['values']:
+            # Show files in snippet
+            snippet = Snippet(config, item)
+            path = snippet.get_slufied_dirname() if relative else snippet.get_path()
+            utils.secho(colorize, path, fg='yellow')
 
     if not snippet_dir_path_regex:
         utils.secho(colorize, 'Give me path of snippet directory or snippet id', fg='red')
@@ -406,27 +398,26 @@ def add_to_snippet(context, files, **kwargs):
         utils.secho(colorize, 'Please pipe content from STDIN or use -P for getting content from clipboard but not both.', fg='red')
         sys.exit(1)
 
-    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
-        data = json.loads(file.read())
+    data = _read_metafile(config)
+    repo_parent = config.get('snipper', 'snippet_dir')
+    snippet = None
 
-        repo_parent = config.get('snipper', 'snippet_dir')
-        snippet = None
+    for item in data['values']:
+        if not snippet_id == item['id']:
+            continue
 
-        for item in data['values']:
-            if not snippet_id == item['id']:
-                continue
-
-            matched_path = glob.glob(os.path.join(repo_parent, '*{}'.format(snippet_id)))
-            if not matched_path:
-                utils.secho(colorize, '[{}] Snippet directory not found.'.format(snippet_id), fg='red')
-                sys.exit(1)
-
-            snippet_dir = matched_path[0]
-            snippet = Snippet(config, item)
-            break
-        if not snippet:
-            utils.secho(colorize, 'Snippet not found. Exiting!'.format(snippet_id), fg='red')
+        matched_path = glob.glob(os.path.join(repo_parent, '*{}'.format(snippet_id)))
+        if not matched_path:
+            utils.secho(colorize, '[{}] Snippet directory not found.'.format(snippet_id), fg='red')
             sys.exit(1)
+
+        snippet_dir = matched_path[0]
+        snippet = Snippet(config, item)
+        break
+
+    if not snippet:
+        utils.secho(colorize, 'Snippet not found. Exiting!'.format(snippet_id), fg='red')
+        sys.exit(1)
 
     # if filename is not specified, it is exist everytime as None
     # so kwargs.get('filename', default_val) not working
@@ -483,10 +474,17 @@ def add_to_snippet(context, files, **kwargs):
         snippet.push()
 
 
-def _update_metadata_file(config, data):
+def _update_metafile(config, data):
     """Update local metadata file that keeps all snippet's data"""
     with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'w') as file:
         file.write(json.dumps(data))
+
+
+def _read_metafile(config, owner='metadata.json'):
+    """Read meta file content"""
+    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
+        return json.loads(file.read())
+
 
 if __name__ == '__main__':
     cli()
