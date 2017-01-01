@@ -382,23 +382,29 @@ def add_to_snippet(context, files, **kwargs):
     colorize = config.getboolean('snipper', 'colorize')
     snippet_dir_path_regex = re.search('(?:.*)?([\w]{5})$', kwargs.get('to', ''))
 
-    def print_relative_snippet_dirs():
+    def print_snippet_dirs(relative=True):
         with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
             data = json.loads(file.read())
 
             for item in data['values']:
                 # Show files in snippet
                 snippet = Snippet(config, item)
-                utils.secho(colorize, snippet.get_slufied_dirname(), fg='yellow')
+                path = snippet.get_slufied_dirname() if relative else snippet.get_path()
+                utils.secho(colorize, path, fg='yellow')
 
     if not snippet_dir_path_regex:
         utils.secho(colorize, 'Give me path of snippet directory or snippet id', fg='red')
         utils.secho(colorize, 'Existing snippet directories:', fg='blue')
 
-        print_relative_snippet_dirs()
+        print_snippet_dirs(relative=True)
         sys.exit(1)
 
     snippet_id = snippet_dir_path_regex.group(1)
+
+    if not sys.stdin.isatty() and kwargs.get('paste'):
+        utils.secho(colorize, 'You cannot use STDIN and clipboard both for creating snippet file.', fg='red')
+        utils.secho(colorize, 'Please pipe content from STDIN or use -P for getting content from clipboard but not both.', fg='red')
+        sys.exit(1)
 
     with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
         data = json.loads(file.read())
@@ -431,29 +437,44 @@ def add_to_snippet(context, files, **kwargs):
     file_path = utils.get_incremented_file_path(os.path.join(snippet_dir, filename))
 
     if not sys.stdin.isatty():
-        utils.secho(colorize, 'New file created from STDIN', fg='blue')
-
+        # Read from STDIN
         streamed_data = sys.stdin.read()
 
         with open(file_path, 'w') as file:
             file.write(streamed_data)
+            utils.secho(colorize, 'File created from STDIN: {}'.format(file_path), fg='blue')
 
     elif kwargs.get('paste'):
         # Read from clipboard
         clipboard_text = pyperclip.paste()
 
         if clipboard_text:
-            utils.secho(colorize, 'New file created from clipboard content', fg='blue')
-
             with open(file_path, 'w') as file:
                 file.write(streamed_data)
+                utils.secho(colorize, 'File created from clipboard content: {}'.format(file_path), fg='blue')
         else:
             utils.secho(colorize, 'Clipboard is empty, ignoring', fg='yellow')
+    else:
+        # Open editor
+        new_file_content = click.edit()
+        if new_file_content is None:
+            utils.secho(colorize, 'Empty content. Exiting', fg='red')
+            sys.exit(1)
+
+        if new_file_content == '':
+            confirm = click.confirm('Content is empty. Create anyway?')
+            if not confirm:
+                sys.exit(1)
+
+        with open(file_path, 'w') as file:
+            file.write(new_file_content)
+            utils.secho(colorize, 'File created: {}'.format(file_path), fg='blue')
 
     for file in files:
-        # Copy specified files to snippet dir
+        # Copy given files to snippet
         utils.secho(colorize, '{} added to snippet'.format(file), fg='blue')
         shutil.copy(file, snippet_dir)
+        utils.secho(colorize, 'File added: {}'.format(file), fg='blue')
 
     snippet.commit()
 
@@ -469,4 +490,3 @@ def _update_metadata_file(config, data):
 
 if __name__ == '__main__':
     cli()
-
