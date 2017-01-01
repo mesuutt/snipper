@@ -225,7 +225,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 @click.option('--open', '-o', help='Open snippet URL on browser after create', is_flag=True)
 @click.option('--paste', '-P', help='Create snippet from clipboard', is_flag=True)
 @click.option('--filename', '-f', help='Used when content read from STDIN or clipboard')
-@click.argument('files', nargs=-1)
+@click.argument('files', nargs=-1, type=click.Path(exists=True))
 @click.pass_context
 def new_snippet(context, files, **kwargs):
 
