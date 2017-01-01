@@ -62,7 +62,7 @@ class Snippet(object):
 
     def get_files(self):
         """Get files in local snippet directory"""
-        data = utils.read_metafile(self.config)
+        data = utils.read_metadata(self.config)
         for item in data['values']:
             if item['id'] != self.snippet_id:
                 continue

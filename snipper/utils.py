@@ -78,7 +78,7 @@ def get_incremented_file_path(file_path):
     return new_path
 
 
-def read_metafile(config, owner=None):
+def read_metadata(config, owner=None):
     """Read meta file content"""
     if not owner:
         owner = config.get('snipper', 'username')
@@ -87,7 +87,7 @@ def read_metafile(config, owner=None):
         return json.loads(file.read())
 
 
-def update_metafile(config, data, owner=None):
+def update_metadata(config, data, owner=None):
     """Update local metadata file that keeps all snippet's data"""
     if not owner:
         owner = config.get('snipper', 'username')

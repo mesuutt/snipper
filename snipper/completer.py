@@ -45,7 +45,7 @@ class SnippetFilesCompleter(BasePathCompleter):
     def __init__(self, config):
         super(SnippetFilesCompleter, self).__init__()
 
-        data = utils.read_metafile(config)
+        data = utils.read_metadata(config)
 
         for item in data['values']:
             snippet = Snippet(config, item)
@@ -62,7 +62,7 @@ class SnippetDirCompleter(BasePathCompleter):
     def __init__(self, config):
         super(SnippetDirCompleter, self).__init__()
 
-        data = utils.read_metafile(config)
+        data = utils.read_metadata(config)
 
         for item in data['values']:
             snippet = Snippet(config, item)

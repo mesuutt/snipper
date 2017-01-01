@@ -113,7 +113,7 @@ def list_snippets(context, verbose):
 
     config.set('snipper', 'verbose', verbose)
 
-    data = utils.read_metafile(config)
+    data = utils.read_metadata(config)
 
     for item in data['values']:
 
@@ -151,7 +151,7 @@ def pull_local_snippets(context):
     api = SnippetApi(config)
     res = api.get_all()
 
-    utils.update_metafile(config, res)
+    utils.update_metadata(config, res)
 
     for item in res['values']:
         snippet = Snippet(config, item)
@@ -305,9 +305,9 @@ def new_snippet(context, files, **kwargs):
         snippet = Snippet(config, response.json())
 
         # Update metadata file
-        metadata = utils.read_metafile(config)
+        metadata = utils.read_metadata(config)
         metadata['values'].append(response.json())
-        utils.update_metafile(config, metadata)
+        utils.update_metadata(config, metadata)
 
         snippet.clone()
 
@@ -338,7 +338,7 @@ def sync_snippets(context, **kwargs):
     utils.secho(colorize, 'Downloading snippet meta data from Bitbucket', fg='green')
     data = api.get_all()
 
-    utils.update_metafile(config, data)
+    utils.update_metadata(config, data)
 
     snippet = None
     for item in data['values']:
@@ -406,7 +406,7 @@ def add_to_snippet(context, files, **kwargs):
         utils.secho(colorize, 'Please pipe content from STDIN or use -P for getting content from clipboard but not both.', fg='red')
         sys.exit(1)
 
-    data = utils.read_metafile(config)
+    data = utils.read_metadata(config)
     repo_parent = config.get('snipper', 'snippet_dir')
     snippet = None
 
@@ -484,7 +484,7 @@ def add_to_snippet(context, files, **kwargs):
 
 def _print_snippet_dirs(config, relative=True):
     colorize = config.getboolean('snipper', 'colorize')
-    data = utils.read_metafile(config)
+    data = utils.read_metadata(config)
 
     for item in data['values']:
         # Show files in snippet
