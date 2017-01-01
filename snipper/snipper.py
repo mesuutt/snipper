@@ -45,7 +45,6 @@ def cli(context, config_file, no_color, **kwargs):
     # Create config with default values
     config = configparser.ConfigParser({
         'snippet_dir': DEFAULT_SNIPPET_DIR,
-        'verbose': 'detailed',
         'auto_push': 'yes',
         'default_filename': 'snippet.md',
         'colorize': 'no' if no_color else 'yes',
@@ -90,7 +89,6 @@ def _init_snipper(config_file, colorize):
     config.set('snipper', 'snippet_dir', snippet_dir)
     config.set('snipper', 'username', username)
     config.set('snipper', 'password', password)
-    config.set('snipper', 'verbose', 'detailed')
     config.set('snipper', 'colorize', 'True' if colorize else 'False')
 
     config.write(open(config_file, 'w'))
@@ -109,8 +107,6 @@ def list_snippets(context, verbose):
     """List local snippets"""
     config = context.obj
     colorize = config.getboolean('snipper', 'colorize')
-
-    config.set('snipper', 'verbose', verbose)
 
     data = utils.read_metadata(config)
 
