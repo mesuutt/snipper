@@ -46,7 +46,7 @@ def cli(context, config_file, no_color, **kwargs):
     config = configparser.ConfigParser({
         'snippet_dir': DEFAULT_SNIPPET_DIR,
         'auto_push': 'yes',
-        'default_filename': 'snippet.md',
+        'default_filename': 'file.txt',
         'colorize': 'no' if no_color else 'yes',
     })
 
