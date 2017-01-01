@@ -61,16 +61,13 @@ class Snippet(object):
         return Repo.push(self.repo_path)
 
     def get_files(self):
-        """ Get files in local snippet directory """
-        metadata_file = os.path.join(self.config.get('snipper', 'snippet_dir'), 'metadata.json')
-        with open(metadata_file, 'r') as file:
-            data = json.loads(file.read())
+        """Get files in local snippet directory"""
+        data = utils.read_metafile(self.config)
+        for item in data['values']:
+            if item['id'] != self.snippet_id:
+                continue
 
-            for item in data['values']:
-                if item['id'] != self.snippet_id:
-                    continue
-
-                return [f for f in os.listdir(self.repo_path) if os.path.isfile(os.path.join(self.repo_path, f))]
+            return [f for f in os.listdir(self.repo_path) if os.path.isfile(os.path.join(self.repo_path, f))]
 
     def clone(self):
 
