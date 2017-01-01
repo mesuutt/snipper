@@ -108,7 +108,6 @@ def _init_snipper(config_file, colorize):
 @click.pass_context
 def list_snippets(context, verbose):
     """List local snippets"""
-
     config = context.obj
     colorize = config.getboolean('snipper', 'colorize')
 
@@ -138,12 +137,14 @@ def list_snippets(context, verbose):
                 for file_name in onlyfiles:
                     utils.secho(colorize, os.path.join(snippet_path, file_name))
 
+
 @cli.command(name='pull')
 @click.pass_context
 def pull_local_snippets(context):
     """
     Update local snippets from Bitbucket.
-    Pull existing snippets change and clone new snippets if exists.
+
+    Pull changes of existing snippets and clone new snippets.
     """
     config = context.obj
     colorize = config.getboolean('snipper', 'colorize')
@@ -167,9 +168,8 @@ def pull_local_snippets(context):
     utils.secho(colorize, 'Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
 
 
-def _open_snippet_file(context, param, relative_path):
+def _edit_snippet_file(context, param, relative_path):
     """Open snippet file with default editor"""
-
     config = context.obj
     colorize = config.getboolean('snipper', 'colorize')
 
@@ -185,13 +185,14 @@ def _open_snippet_file(context, param, relative_path):
 
     context.exit()
 
+
 @cli.command(name='edit', help='Edit snippet file')
 @click.option('--fuzzy', is_flag=True, default=True, help='Open fuzzy file finder')
 @click.argument(
     'FILE_PATH',
     type=click.Path(),
     required=False, is_eager=True, expose_value=False,
-    callback=_open_snippet_file
+    callback=_edit_snippet_file
 )
 @click.pass_context
 def edit_snippet_file(context, fuzzy, file_path=None):
