@@ -368,11 +368,103 @@ def sync_snippets(context, **kwargs):
             utils.secho(colorize, 'Snippet with given id not found: {}'.format(snippet_id), fg='yellow')
 
 
+@cli.command(name='add', help='Add file[s] to snippet')
+@click.argument('to', nargs=1, required=True)
+@click.argument('files', nargs=-1, type=click.Path(exists=True))
+@click.option('--filename', '-f', help='Used when content read from STDIN or clipboard')
+@click.option('--open', '-o', help='Open snippet URL on browser after file added', is_flag=True)
+@click.option('--paste', '-P', help='Read content from clipboard', is_flag=True)
+@click.option('--copy-url', '-c', help='Copy snippet URL to clipboard', is_flag=True)
+@click.pass_context
+def add_to_snippet(context, files, **kwargs):
+    config = context.obj
+    colorize = config.getboolean('snipper', 'colorize')
+    snippet_dir_path_regex = re.search('(?:.*)?([\w]{5})$', kwargs.get('to', ''))
+
+    def print_relative_snippet_dirs():
+        with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
+            data = json.loads(file.read())
+
+            for item in data['values']:
+                # Show files in snippet
+                snippet = Snippet(config, item)
+                utils.secho(colorize, snippet.get_slufied_dirname(), fg='yellow')
+
+    if not snippet_dir_path_regex:
+        utils.secho(colorize, 'Give me path of snippet directory or snippet id', fg='red')
+        utils.secho(colorize, 'Existing snippet directories:', fg='blue')
+
+        print_relative_snippet_dirs()
+        sys.exit(1)
+
+    snippet_id = snippet_dir_path_regex.group(1)
+
+    with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'r') as file:
+        data = json.loads(file.read())
+
+        repo_parent = config.get('snipper', 'snippet_dir')
+        snippet = None
+
+        for item in data['values']:
+            if not snippet_id == item['id']:
+                continue
+
+            matched_path = glob.glob(os.path.join(repo_parent, '*{}'.format(snippet_id)))
+            if not matched_path:
+                utils.secho(colorize, '[{}] Snippet directory not found.'.format(snippet_id), fg='red')
+                sys.exit(1)
+
+            snippet_dir = matched_path[0]
+            snippet = Snippet(config, item)
+            break
+        if not snippet:
+            utils.secho(colorize, 'Snippet not found. Exiting!'.format(snippet_id), fg='red')
+            sys.exit(1)
+
+    # if filename is not specified, it is exist everytime as None
+    # so kwargs.get('filename', default_val) not working
+    filename = kwargs.get('filename')
+    if not filename:
+        filename = config.get('snipper', 'default_filename')
+
+    file_path = utils.get_incremented_file_path(os.path.join(snippet_dir, filename))
+
+    if not sys.stdin.isatty():
+        utils.secho(colorize, 'New file created from STDIN', fg='blue')
+
+        streamed_data = sys.stdin.read()
+
+        with open(file_path, 'w') as file:
+            file.write(streamed_data)
+
+    elif kwargs.get('paste'):
+        # Read from clipboard
+        clipboard_text = pyperclip.paste()
+
+        if clipboard_text:
+            utils.secho(colorize, 'New file created from clipboard content', fg='blue')
+
+            with open(file_path, 'w') as file:
+                file.write(streamed_data)
+        else:
+            utils.secho(colorize, 'Clipboard is empty, ignoring', fg='yellow')
+
+    for file in files:
+        # Copy specified files to snippet dir
+        utils.secho(colorize, '{} added to snippet'.format(file), fg='blue')
+        shutil.copy(file, snippet_dir)
+
+    snippet.commit()
+
+    if config.getboolean('snipper', 'auto_push'):
+        utils.secho(colorize, 'Snippet pushing to Bitbucket', fg='blue')
+        snippet.push()
+
+
 def _update_metadata_file(config, data):
     """Update local metadata file that keeps all snippet's data"""
     with open(os.path.join(config.get('snipper', 'snippet_dir'), 'metadata.json'), 'w') as file:
         file.write(json.dumps(data))
-
 
 if __name__ == '__main__':
     cli()
