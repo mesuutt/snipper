@@ -299,13 +299,13 @@ def new_snippet(context, files, **kwargs):
     )
 
     if response.ok:
-        snippet = Snippet(config, response.json())
 
         # Update metadata file
         metadata = utils.read_metadata(config)
         metadata['values'].append(response.json())
         utils.update_metadata(config, metadata)
 
+        snippet = Snippet(config, response.json())
         snippet.clone()
 
         utils.secho(colorize, 'Created snippet cloned from Bitbucket', fg='green')
