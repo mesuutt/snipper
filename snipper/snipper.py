@@ -113,7 +113,7 @@ def list_snippets(context, verbose):
     for item in data['values']:
 
         if verbose == 'short':
-            utils.secho(colorize, '[{}] {}'.format(item['id'], item['title']))
+            utils.secho(colorize, '[{}] {}'.format(item['id'], item['title']), fg='blue')
 
         elif verbose == 'detailed':
             # Show files in snippet
@@ -269,7 +269,7 @@ def new_snippet(context, files, **kwargs):
         content = click.edit()
 
         if content is None:
-            utils.secho(colorize, 'Empty content. Exiting', fg='red')
+            utils.secho(colorize, 'Empty content. Exiting', fg='red', err=True)
             sys.exit(1)
 
         if content == '':
@@ -387,7 +387,7 @@ def add_to_snippet(context, files, **kwargs):
 
     snippet_dir_path_regex = re.search('(?:.*)?([\w]{5})$', selected_snippet_dirname)
     if not snippet_dir_path_regex:
-        utils.secho(colorize, 'Give me path of snippet directory or snippet id', fg='red')
+        utils.secho(colorize, 'Give me path of snippet directory or snippet id', fg='red', err=True)
         utils.secho(colorize, 'Existing snippet directories:', fg='blue')
 
         _print_snippet_dirs(config, relative=True)
@@ -396,8 +396,8 @@ def add_to_snippet(context, files, **kwargs):
     snippet_id = snippet_dir_path_regex.group(1)
 
     if not sys.stdin.isatty() and kwargs.get('paste'):
-        utils.secho(colorize, 'You cannot use STDIN and clipboard both for creating snippet file.', fg='red')
-        utils.secho(colorize, 'Please pipe content from STDIN or use -P for getting content from clipboard but not both.', fg='red')
+        utils.secho(colorize, 'You cannot use STDIN and clipboard both for creating snippet file.', fg='red', err=True)
+        utils.secho(colorize, 'Please pipe content from STDIN or use -P for getting content from clipboard but not both.', fg='red', err=True)
         sys.exit(1)
 
     data = utils.read_metadata(config)
@@ -410,7 +410,7 @@ def add_to_snippet(context, files, **kwargs):
 
         matched_path = glob.glob(os.path.join(repo_parent, '*{}'.format(snippet_id)))
         if not matched_path:
-            utils.secho(colorize, '[{}] Snippet directory not found.'.format(snippet_id), fg='red')
+            utils.secho(colorize, '[{}] Snippet directory not found.'.format(snippet_id), fg='red', err=True)
             sys.exit(1)
 
         snippet_dir = matched_path[0]
@@ -418,7 +418,7 @@ def add_to_snippet(context, files, **kwargs):
         break
 
     if not snippet:
-        utils.secho(colorize, 'Snippet not found. Exiting!'.format(snippet_id), fg='red')
+        utils.secho(colorize, 'Snippet not found. Exiting!'.format(snippet_id), fg='red', err=True)
         sys.exit(1)
 
     # if filename is not specified, it is exist everytime as None
@@ -451,7 +451,7 @@ def add_to_snippet(context, files, **kwargs):
         # Open editor
         new_file_content = click.edit()
         if new_file_content is None:
-            utils.secho(colorize, 'Empty content. Exiting', fg='red')
+            utils.secho(colorize, 'Empty content. Exiting', fg='red', err=True)
             sys.exit(1)
 
         if new_file_content == '':
