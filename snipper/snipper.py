@@ -110,26 +110,29 @@ def list_snippets(context, verbose):
 
     data = utils.read_metadata(config)
 
+    long_file_list = []
     for item in data['values']:
+        snippet = Snippet(config, item)
+
+        if not snippet.is_cloned():
+            msg = '[{}] Snippet does not exist in snippet directory. Please `pull` or `sync`'.format(item['id'])
+            utils.secho(colorize, msg, fg='blue')
+
+            continue
 
         if verbose == 'short':
             utils.secho(colorize, '[{}] {}'.format(item['id'], item['title']), fg='blue')
 
         elif verbose == 'detailed':
             # Show files in snippet
-            snippet = Snippet(config, item)
-            snippet_path = snippet.get_path()
-
-            if not snippet.is_cloned():
-                msg = '[{}] {} \n Snippet does not exist. Please `pull` changes'
-                utils.secho(colorize, msg.format(item['id'], item['title']), fg='red')
-
-                continue
-
             onlyfiles = snippet.get_files()
 
             for file_name in onlyfiles:
-                utils.secho(colorize, os.path.join(snippet_path, file_name))
+                snippet_path = snippet.get_path()
+                long_file_list.append(os.path.join(snippet_path, file_name))
+
+    if long_file_list:
+        click.echo_via_pager('\n'.join(long_file_list))
 
 
 @cli.command(name='pull')
