@@ -89,7 +89,7 @@ def _init_snipper(config_file, colorize):
     config.set('snipper', 'snippet_dir', snippet_dir)
     config.set('snipper', 'username', username)
     config.set('snipper', 'password', password)
-    config.set('snipper', 'colorize', 'True' if colorize else 'False')
+    config.set('snipper', 'colorize', 'yes' if colorize else 'no')
 
     config.write(open(config_file, 'w'))
 
