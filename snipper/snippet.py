@@ -1,6 +1,5 @@
 import os
 import glob
-import json
 
 from . import utils
 from .repo import Repo
