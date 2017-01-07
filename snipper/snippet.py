@@ -69,7 +69,6 @@ class Snippet(object):
             return [f for f in os.listdir(self.repo_path) if os.path.isfile(os.path.join(self.repo_path, f))]
 
     def clone(self):
-
         metadata = self.data
         repo_parent = os.path.dirname(self.repo_path)
 
@@ -79,7 +78,7 @@ class Snippet(object):
             # Using title for readablity(<slugified snippet_title>-<snippet_id>)
             clone_to = os.path.join(repo_parent, self.get_slugified_dirname())
 
-        Repo.clone(self.get_clone_url(), clone_to=clone_to)
+        return Repo.clone(self.get_clone_url(), clone_to=clone_to)
 
     def get_clone_url(self):
         # For py2 support converting to iterator
