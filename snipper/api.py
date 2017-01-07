@@ -30,7 +30,7 @@ class SnippetApi(BitbucketApi):
         res = self.get(self.config.get('snipper', 'username'))
         return res.json()
 
-    def make_payload(self, is_private, title, scm, **kwargs):
+    def make_payload(self, is_private, title, scm):
         payload = {}
 
         if is_private is not None:
