@@ -88,7 +88,7 @@ class Snippet(object):
             self.data['links']['clone']
         )))['href']
 
-    def show_details(self):
+    def get_detail_for_print(self):
 
         text = "\n".join([
             u'Title     : {}'.format(self.data['title']),
@@ -98,4 +98,4 @@ class Snippet(object):
             u'Path      : {}'.format(self.get_path()),
         ])
 
-        print(text)
+        return text

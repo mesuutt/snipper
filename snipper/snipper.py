@@ -319,7 +319,7 @@ def new_snippet(context, files, **kwargs):
         if kwargs.get('open'):
             webbrowser.open_new_tab(snipper_url)
 
-        snippet.show_details()
+        print(snippet.get_detail_for_print())
 
 
 @cli.command(name='sync', help='Sync snippets with Bitbucket')
