@@ -24,7 +24,7 @@ DEFAULT_SNIPPER_CONFIG = os.path.expanduser('~/.snipperrc')
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-    '--config-file', '-c',
+    '--config-file', '-C',
     default=DEFAULT_SNIPPER_CONFIG,
     type=click.Path(),
     help='Config file path: Default: {}'.format(DEFAULT_SNIPPER_CONFIG)
