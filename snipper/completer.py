@@ -66,7 +66,7 @@ class SnippetDirCompleter(BasePathCompleter):
 
         for item in data['values']:
             snippet = Snippet(config, item)
-            dir_name = snippet.get_slufied_dirname()
+            dir_name = snippet.get_slugified_dirname()
             if not dir_name:
                 continue
 

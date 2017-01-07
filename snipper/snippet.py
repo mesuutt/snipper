@@ -32,18 +32,18 @@ class Snippet(object):
             return matched_path[0]
 
         # If snippet dir not found return generated path
-        dir_name = self.get_slufied_dirname()
+        dir_name = self.get_slugified_dirname()
         new_path = os.path.join(repo_parent, dir_name)
 
         return new_path
 
-    def get_slufied_dirname(self):
+    def get_slugified_dirname(self):
         slugified_title = utils.slugify(self.data['title'])
         return "{}-{}".format(slugified_title, self.data['id'])
 
     def update_dir_name(self):
         """Rename snippet directory with new title"""
-        dir_name = self.get_slufied_dirname()
+        dir_name = self.get_slugified_dirname()
         new_path = os.path.join(self.config.get('snipper', 'snippet_dir'), dir_name)
         os.rename(self.repo_path, new_path)
 
@@ -77,7 +77,7 @@ class Snippet(object):
 
         if metadata['title']:
             # Using title for readablity(<slugified snippet_title>-<snippet_id>)
-            clone_to = os.path.join(repo_parent, self.get_slufied_dirname())
+            clone_to = os.path.join(repo_parent, self.get_slugified_dirname())
 
         Repo.clone(self.get_clone_url(), clone_to=clone_to)
 

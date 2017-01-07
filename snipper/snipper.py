@@ -486,7 +486,7 @@ def _print_snippet_dirs(config, relative=True):
     for item in data['values']:
         # Show files in snippet
         snippet = Snippet(config, item)
-        path = snippet.get_slufied_dirname() if relative else snippet.get_path()
+        path = snippet.get_slugified_dirname() if relative else snippet.get_path()
         utils.secho(colorize, path, fg='yellow')
 
 
