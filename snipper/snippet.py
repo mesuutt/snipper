@@ -20,7 +20,7 @@ class Snippet(object):
         else:
             self.scm = 'git'
 
-    def is_cloned(self):
+    def is_exists(self):
         return os.path.exists(self.get_path())
 
     def get_path(self):

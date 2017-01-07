@@ -114,7 +114,7 @@ def list_snippets(context, verbose):
     for item in data['values']:
         snippet = Snippet(config, item)
 
-        if not snippet.is_cloned():
+        if not snippet.is_exists():
             msg = '[{}] Snippet does not exist in snippet directory. Please `pull` or `sync`'.format(item['id'])
             utils.secho(colorize, msg, fg='blue')
 
@@ -153,7 +153,7 @@ def pull_local_snippets(context):
     for item in res['values']:
         snippet = Snippet(config, item)
 
-        if snippet.is_cloned():
+        if snippet.is_exists():
             utils.secho(colorize, '[{}] Pulling ...'.format(snippet.snippet_id), fg='blue')
             snippet.pull()
             snippet.update_dir_name()
@@ -346,7 +346,7 @@ def sync_snippets(context, **kwargs):
         # Show files in snippet
         snippet = Snippet(config, item)
 
-        if not snippet.is_cloned():
+        if not snippet.is_exists():
             # If snippet not exist in local, clone snippet
             utils.secho(colorize, '[{}] {}'.format(item['id'], item.get('title', 'Untitled snippet')), fg='blue')
             snippet.clone()
