@@ -1,0 +1,178 @@
+{
+  "pagelen": 30,
+  "values": [
+    {
+      "links": {
+        "watchers": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/watchers"
+        },
+        "commits": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/commits"
+        },
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8"
+        },
+        "comments": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/comments"
+        },
+        "patch": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/995521ed9f86bbe4abaf03bb0df8d619c5e6440c/patch"
+        },
+        "html": {
+          "href": "https://bitbucket.org/snippets/ian_buchanan/Xqoz8"
+        },
+        "diff": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/995521ed9f86bbe4abaf03bb0df8d619c5e6440c/diff"
+        },
+        "clone": [
+          {
+            "href": "https://ian_buchanan@bitbucket.org/snippets/ian_buchanan/Xqoz8/test-snippet.git",
+            "name": "https"
+          },
+          {
+            "href": "ssh://git@bitbucket.org/snippets/ian_buchanan/Xqoz8/test-snippet.git",
+            "name": "ssh"
+          }
+        ]
+      },
+      "title": "Test Snippet",
+      "created_on": "2015-06-05T16:37:32.928441+00:00",
+      "owner": {
+        "username": "ian_buchanan",
+        "type": "user",
+        "display_name": "Ian Buchanan",
+        "uuid": "{27e49bd2-9ecb-4a41-8387-033c972d1399}",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/users/ian_buchanan"
+          },
+          "html": {
+            "href": "https://bitbucket.org/ian_buchanan"
+          },
+          "avatar": {
+            "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Oct/17/ian_buchanan-avatar-415803637-7_avatar.png"
+          }
+        }
+      },
+      "updated_on": "2015-06-05T16:37:32.928470+00:00",
+      "id": "Xqoz8",
+      "is_private": false
+    },
+    {
+      "links": {
+        "watchers": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/watchers"
+        },
+        "commits": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/commits"
+        },
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R"
+        },
+        "comments": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/comments"
+        },
+        "patch": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/c13c928e42ee32162f5756956e54ea7eb43faf52/patch"
+        },
+        "html": {
+          "href": "https://bitbucket.org/snippets/ian_buchanan/LdA9R"
+        },
+        "diff": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/c13c928e42ee32162f5756956e54ea7eb43faf52/diff"
+        },
+        "clone": [
+          {
+            "href": "https://ian_buchanan@bitbucket.org/snippets/ian_buchanan/LdA9R/another-test-snippet.git",
+            "name": "https"
+          },
+          {
+            "href": "ssh://git@bitbucket.org/snippets/ian_buchanan/LdA9R/another-test-snippet.git",
+            "name": "ssh"
+          }
+        ]
+      },
+      "title": "Another Test Snippet",
+      "created_on": "2015-06-05T21:47:08.094681+00:00",
+      "owner": {
+        "username": "ian_buchanan",
+        "type": "user",
+        "display_name": "Ian Buchanan",
+        "uuid": "{27e49bd2-9ecb-4a41-8387-033c972d1399}",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/users/ian_buchanan"
+          },
+          "html": {
+            "href": "https://bitbucket.org/ian_buchanan"
+          },
+          "avatar": {
+            "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Oct/17/ian_buchanan-avatar-415803637-7_avatar.png"
+          }
+        }
+      },
+      "updated_on": "2015-06-05T21:47:08.094700+00:00",
+      "id": "LdA9R",
+      "is_private": false
+    },
+    {
+      "links": {
+        "watchers": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/watchers"
+        },
+        "commits": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/commits"
+        },
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj"
+        },
+        "comments": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/comments"
+        },
+        "patch": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/d54d20daad80c45dae7450659a9fb77efd731e24/patch"
+        },
+        "html": {
+          "href": "https://bitbucket.org/snippets/ian_buchanan/6k9zj"
+        },
+        "diff": {
+          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/d54d20daad80c45dae7450659a9fb77efd731e24/diff"
+        },
+        "clone": [
+          {
+            "href": "https://ian_buchanan@bitbucket.org/snippets/ian_buchanan/6k9zj/another-test-snippet.git",
+            "name": "https"
+          },
+          {
+            "href": "ssh://git@bitbucket.org/snippets/ian_buchanan/6k9zj/another-test-snippet.git",
+            "name": "ssh"
+          }
+        ]
+      },
+      "title": "Another Test Snippet",
+      "created_on": "2015-06-05T21:47:57.653527+00:00",
+      "owner": {
+        "username": "ian_buchanan",
+        "type": "user",
+        "display_name": "Ian Buchanan",
+        "uuid": "{27e49bd2-9ecb-4a41-8387-033c972d1399}",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/users/ian_buchanan"
+          },
+          "html": {
+            "href": "https://bitbucket.org/ian_buchanan"
+          },
+          "avatar": {
+            "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Oct/17/ian_buchanan-avatar-415803637-7_avatar.png"
+          }
+        }
+      },
+      "updated_on": "2015-06-05T21:47:57.653557+00:00",
+      "id": "6k9zj",
+      "is_private": false
+    }
+  ],
+  "page": 1,
+  "size": 3
+}
