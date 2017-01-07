@@ -61,12 +61,7 @@ class Snippet(object):
 
     def get_files(self):
         """Get files in local snippet directory"""
-        data = utils.read_metadata(self.config)
-        for item in data['values']:
-            if item['id'] != self.snippet_id:
-                continue
-
-            return [f for f in os.listdir(self.repo_path) if os.path.isfile(os.path.join(self.repo_path, f))]
+        return [f for f in os.listdir(self.repo_path) if os.path.isfile(os.path.join(self.repo_path, f))]
 
     def clone(self):
         metadata = self.data
