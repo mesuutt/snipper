@@ -14,7 +14,7 @@ from prompt_toolkit import prompt
 
 from .api import SnippetApi
 from .snippet import Snippet
-from .completer import SnippetFilesCompleter, SnippetDirCompleter, ValidateSnippetDir, ValidateSnippetFile
+from .completer import SnippetFileCompleter, SnippetDirCompleter, ValidateSnippetDir, ValidateSnippetFile
 from .repo import Repo
 from . import utils
 
@@ -200,7 +200,7 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 
     selected_file = prompt(
         u'> ',
-        completer=SnippetFilesCompleter(config),
+        completer=SnippetFileCompleter(config),
         validator=ValidateSnippetFile(config)
     )
     file_path = os.path.join(config.get('snipper', 'snippet_dir'), selected_file)

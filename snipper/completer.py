@@ -40,10 +40,10 @@ class BasePathCompleter(Completer):
         return [x for _, _, x in sorted(suggestions)]
 
 
-class SnippetFilesCompleter(BasePathCompleter):
+class SnippetFileCompleter(BasePathCompleter):
 
     def __init__(self, config):
-        super(SnippetFilesCompleter, self).__init__()
+        super(SnippetFileCompleter, self).__init__()
 
         data = utils.read_metadata(config)
 
