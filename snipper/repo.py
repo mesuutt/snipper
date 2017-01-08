@@ -47,8 +47,7 @@ class Repo:
             # -A option remove gone files and add untracked/changed files.
             return run_command('hg commit -A -m {!r}'.format(message))
         else:
-            run_command('git add -A')
-            return run_command('git commit -m {!r}'.format(message))
+            return run_command('git add -A && git commit -m {!r}'.format(message))
 
     @staticmethod
     def sync(repo_dir):
