@@ -1,0 +1,57 @@
+{
+  "is_private": false,
+  "title": "Test snippet (Git)",
+  "links": {
+    "self": {
+      "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj"
+    },
+    "diff": {
+      "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/603d09a57c78b6ae8e1aff26b52443e12ac9cc0a/diff"
+    },
+    "html": {
+      "href": "https://bitbucket.org/snippets/mesuutt/kBkKj"
+    },
+    "commits": {
+      "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/commits"
+    },
+    "clone": [
+      {
+        "name": "https",
+        "href": "https://mesuutt@bitbucket.org/snippets/mesuutt/kBkKj/test-snippet-git.git"
+      },
+      {
+        "name": "ssh",
+        "href": "ssh://git@bitbucket.org/snippets/mesuutt/kBkKj/test-snippet-git.git"
+      }
+    ],
+    "watchers": {
+      "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/watchers"
+    },
+    "comments": {
+      "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/comments"
+    },
+    "patch": {
+      "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/603d09a57c78b6ae8e1aff26b52443e12ac9cc0a/patch"
+    }
+  },
+  "created_on": "2017-01-08T00:14:41.371873+00:00",
+  "id": "kBkKj",
+  "updated_on": "2017-01-08T00:14:41.371889+00:00",
+  "owner": {
+    "username": "mesuutt",
+    "display_name": "Mesut Tasci",
+    "uuid": "{ce39209b-94c0-4e1c-be6b-d08140ed0203}",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/users/mesuutt"
+      },
+      "html": {
+        "href": "https://bitbucket.org/mesuutt/"
+      },
+      "avatar": {
+        "href": "https://bitbucket.org/account/mesuutt/avatar/32/"
+      }
+    },
+    "type": "user"
+  }
+}

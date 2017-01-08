@@ -2,177 +2,120 @@
   "pagelen": 30,
   "values": [
     {
+      "is_private": false,
+      "title": "Test snippet (Git)",
       "links": {
-        "watchers": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/watchers"
-        },
-        "commits": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/commits"
-        },
         "self": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8"
-        },
-        "comments": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/comments"
-        },
-        "patch": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/995521ed9f86bbe4abaf03bb0df8d619c5e6440c/patch"
-        },
-        "html": {
-          "href": "https://bitbucket.org/snippets/ian_buchanan/Xqoz8"
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj"
         },
         "diff": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/Xqoz8/995521ed9f86bbe4abaf03bb0df8d619c5e6440c/diff"
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/603d09a57c78b6ae8e1aff26b52443e12ac9cc0a/diff"
+        },
+        "html": {
+          "href": "https://bitbucket.org/snippets/mesuutt/kBkKj"
+        },
+        "commits": {
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/commits"
         },
         "clone": [
           {
-            "href": "https://ian_buchanan@bitbucket.org/snippets/ian_buchanan/Xqoz8/test-snippet.git",
-            "name": "https"
+            "name": "https",
+            "href": "https://mesuutt@bitbucket.org/snippets/mesuutt/kBkKj/test-snippet-git.git"
           },
           {
-            "href": "ssh://git@bitbucket.org/snippets/ian_buchanan/Xqoz8/test-snippet.git",
-            "name": "ssh"
+            "name": "ssh",
+            "href": "ssh://git@bitbucket.org/snippets/mesuutt/kBkKj/test-snippet-git.git"
           }
-        ]
-      },
-      "title": "Test Snippet",
-      "created_on": "2015-06-05T16:37:32.928441+00:00",
-      "owner": {
-        "username": "ian_buchanan",
-        "type": "user",
-        "display_name": "Ian Buchanan",
-        "uuid": "{27e49bd2-9ecb-4a41-8387-033c972d1399}",
-        "links": {
-          "self": {
-            "href": "https://api.bitbucket.org/2.0/users/ian_buchanan"
-          },
-          "html": {
-            "href": "https://bitbucket.org/ian_buchanan"
-          },
-          "avatar": {
-            "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Oct/17/ian_buchanan-avatar-415803637-7_avatar.png"
-          }
+        ],
+        "watchers": {
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/watchers"
+        },
+        "comments": {
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/comments"
+        },
+        "patch": {
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/kBkKj/603d09a57c78b6ae8e1aff26b52443e12ac9cc0a/patch"
         }
       },
-      "updated_on": "2015-06-05T16:37:32.928470+00:00",
-      "id": "Xqoz8",
-      "is_private": false
+      "created_on": "2017-01-08T00:14:41.371873+00:00",
+      "id": "kBkKj",
+      "updated_on": "2017-01-08T00:14:41.371889+00:00",
+      "owner": {
+        "username": "mesuutt",
+        "display_name": "Mesut Tasci",
+        "uuid": "{ce39209b-94c0-4e1c-be6b-d08140ed0203}",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/users/mesuutt"
+          },
+          "html": {
+            "href": "https://bitbucket.org/mesuutt/"
+          },
+          "avatar": {
+            "href": "https://bitbucket.org/account/mesuutt/avatar/32/"
+          }
+        },
+        "type": "user"
+      }
     },
     {
+      "is_private": false,
+      "title": "Test snippet (HG)",
       "links": {
-        "watchers": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/watchers"
-        },
-        "commits": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/commits"
-        },
         "self": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R"
-        },
-        "comments": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/comments"
-        },
-        "patch": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/c13c928e42ee32162f5756956e54ea7eb43faf52/patch"
-        },
-        "html": {
-          "href": "https://bitbucket.org/snippets/ian_buchanan/LdA9R"
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/y4yKd"
         },
         "diff": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/LdA9R/c13c928e42ee32162f5756956e54ea7eb43faf52/diff"
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/y4yKd/bf0c949b6c4f7708d9149dced692a7ce90a0d8d6/diff"
+        },
+        "html": {
+          "href": "https://bitbucket.org/snippets/mesuutt/y4yKd"
+        },
+        "commits": {
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/y4yKd/commits"
         },
         "clone": [
           {
-            "href": "https://ian_buchanan@bitbucket.org/snippets/ian_buchanan/LdA9R/another-test-snippet.git",
-            "name": "https"
+            "name": "https",
+            "href": "https://mesuutt@bitbucket.org/snippets/mesuutt/y4yKd/test-snippet-hg"
           },
           {
-            "href": "ssh://git@bitbucket.org/snippets/ian_buchanan/LdA9R/another-test-snippet.git",
-            "name": "ssh"
+            "name": "ssh",
+            "href": "ssh://hg@bitbucket.org/snippets/mesuutt/y4yKd/test-snippet-hg"
           }
-        ]
-      },
-      "title": "Another Test Snippet",
-      "created_on": "2015-06-05T21:47:08.094681+00:00",
-      "owner": {
-        "username": "ian_buchanan",
-        "type": "user",
-        "display_name": "Ian Buchanan",
-        "uuid": "{27e49bd2-9ecb-4a41-8387-033c972d1399}",
-        "links": {
-          "self": {
-            "href": "https://api.bitbucket.org/2.0/users/ian_buchanan"
-          },
-          "html": {
-            "href": "https://bitbucket.org/ian_buchanan"
-          },
-          "avatar": {
-            "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Oct/17/ian_buchanan-avatar-415803637-7_avatar.png"
-          }
-        }
-      },
-      "updated_on": "2015-06-05T21:47:08.094700+00:00",
-      "id": "LdA9R",
-      "is_private": false
-    },
-    {
-      "links": {
+        ],
         "watchers": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/watchers"
-        },
-        "commits": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/commits"
-        },
-        "self": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj"
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/y4yKd/watchers"
         },
         "comments": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/comments"
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/y4yKd/comments"
         },
         "patch": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/d54d20daad80c45dae7450659a9fb77efd731e24/patch"
-        },
-        "html": {
-          "href": "https://bitbucket.org/snippets/ian_buchanan/6k9zj"
-        },
-        "diff": {
-          "href": "https://api.bitbucket.org/2.0/snippets/ian_buchanan/6k9zj/d54d20daad80c45dae7450659a9fb77efd731e24/diff"
-        },
-        "clone": [
-          {
-            "href": "https://ian_buchanan@bitbucket.org/snippets/ian_buchanan/6k9zj/another-test-snippet.git",
-            "name": "https"
-          },
-          {
-            "href": "ssh://git@bitbucket.org/snippets/ian_buchanan/6k9zj/another-test-snippet.git",
-            "name": "ssh"
-          }
-        ]
-      },
-      "title": "Another Test Snippet",
-      "created_on": "2015-06-05T21:47:57.653527+00:00",
-      "owner": {
-        "username": "ian_buchanan",
-        "type": "user",
-        "display_name": "Ian Buchanan",
-        "uuid": "{27e49bd2-9ecb-4a41-8387-033c972d1399}",
-        "links": {
-          "self": {
-            "href": "https://api.bitbucket.org/2.0/users/ian_buchanan"
-          },
-          "html": {
-            "href": "https://bitbucket.org/ian_buchanan"
-          },
-          "avatar": {
-            "href": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Oct/17/ian_buchanan-avatar-415803637-7_avatar.png"
-          }
+          "href": "https://api.bitbucket.org/2.0/snippets/mesuutt/y4yKd/bf0c949b6c4f7708d9149dced692a7ce90a0d8d6/patch"
         }
       },
-      "updated_on": "2015-06-05T21:47:57.653557+00:00",
-      "id": "6k9zj",
-      "is_private": false
+      "created_on": "2017-01-08T00:15:53.058891+00:00",
+      "id": "y4yKd",
+      "updated_on": "2017-01-08T00:15:53.058905+00:00",
+      "owner": {
+        "username": "mesuutt",
+        "display_name": "Mesut Tasci",
+        "uuid": "{ce39209b-94c0-4e1c-be6b-d08140ed0203}",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/users/mesuutt"
+          },
+          "html": {
+            "href": "https://bitbucket.org/mesuutt/"
+          },
+          "avatar": {
+            "href": "https://bitbucket.org/account/mesuutt/avatar/32/"
+          }
+        },
+        "type": "user"
+      }
     }
   ],
   "page": 1,
-  "size": 3
+  "size": 2
 }
