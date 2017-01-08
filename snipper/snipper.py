@@ -1,5 +1,4 @@
 import os
-import json
 import getpass
 import sys
 import configparser
