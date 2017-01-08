@@ -44,8 +44,8 @@ class Repo:
         os.chdir(repo_dir)
 
         if os.path.exists(os.path.join(repo_dir, '.hg')):
-            run_command('hg add .')
-            return run_command('hg commit -m {!r}'.format(message))
+            # -A option remove gone files and add untracked/changed files.
+            return run_command('hg commit -A -m {!r}'.format(message))
         else:
             run_command('git add -A')
             return run_command('git commit -m {!r}'.format(message))
