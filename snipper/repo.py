@@ -49,3 +49,14 @@ class Repo:
         else:
             run_command('git add -A')
             return run_command('git commit -m {!r}'.format(message))
+
+    @staticmethod
+    def sync(repo_dir):
+        """Sync repo"""
+        os.chdir(repo_dir)
+
+        if os.path.exists(os.path.join(repo_dir, '.hg')):
+            # Start command one after another
+            return run_command('hg pull; hg update; hg push')
+        else:
+            return run_command('git pull; git push')
