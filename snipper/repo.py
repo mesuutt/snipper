@@ -24,8 +24,7 @@ class Repo:
         os.chdir(repo_dir)
 
         if os.path.exists(os.path.join(repo_dir, '.hg')):
-            return run_command('hg pull')
-            return run_command('hg update')
+            return run_command('hg pull; hg update')
         else:
             return run_command('git pull')
 
