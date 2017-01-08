@@ -59,6 +59,10 @@ class Snippet(object):
         """Push changes to remote"""
         return Repo.push(self.repo_path)
 
+    def sync(self):
+        """Pull changes from remote and push changes to remote"""
+        return Repo.sync(self.repo_path)
+
     def get_files(self):
         """Get files in local snippet directory"""
         return [f for f in os.listdir(self.repo_path) if os.path.isfile(os.path.join(self.repo_path, f))]

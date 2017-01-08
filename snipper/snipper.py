@@ -355,8 +355,7 @@ def sync_snippets(context, **kwargs):
             snippet.commit()
 
             utils.secho(colorize, '[{}]: Syncing snippet...'.format(item['id']), fg='blue')
-            snippet.pull()
-            snippet.push()
+            snippet.sync()
             snippet.update_dir_name()
 
     if snippet_id and not snippet:
