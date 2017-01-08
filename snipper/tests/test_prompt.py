@@ -8,7 +8,7 @@ from copy import deepcopy
 import shutil
 
 from snipper.snippet import Snippet
-from snipper.completer import SnippetDirCompleter, SnippetFileCompleter
+from snipper.completers import SnippetDirCompleter, SnippetFileCompleter
 
 TEST_DIR = os.path.dirname(__file__)
 

@@ -14,7 +14,7 @@ from prompt_toolkit import prompt
 
 from .api import SnippetApi
 from .snippet import Snippet
-from .completer import SnippetFileCompleter, SnippetDirCompleter, ValidateSnippetDir, ValidateSnippetFile
+from .completers import SnippetFileCompleter, SnippetDirCompleter, ValidateSnippetDir, ValidateSnippetFile
 from .repo import Repo
 from . import utils
 

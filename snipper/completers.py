@@ -1,5 +1,4 @@
 import os
-import json
 import re
 
 from prompt_toolkit.completion import Completer, Completion
