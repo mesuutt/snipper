@@ -1,0 +1,8 @@
+[snipper]
+username=mesuutt
+password=aaaa
+default_filename=file.md
+verbose=detailed
+auto_push=True
+colorize=on
+protocol=ssh
