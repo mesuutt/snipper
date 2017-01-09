@@ -56,6 +56,13 @@ def cli(context, config_file, no_color, **kwargs):
     # user must give password every clone/pull/push.
     config.set('snipper', 'protocol', 'ssh')
 
+    # Read useraname/password from env vars not exist in config file
+    if not config.has_option('snipper', 'username') and os.environ.get('SNIPPER_USERNAME'):
+        config.set('snipper', 'username', os.environ['SNIPPER_USERNAME'])
+
+    if not config.has_option('snipper', 'password') and os.environ.get('SNIPPER_PASSWORD'):
+        config.set('snipper', 'password', os.environ['SNIPPER_PASSWORD'])
+
     context.obj = config
 
 
