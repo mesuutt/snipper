@@ -35,7 +35,7 @@ DEFAULT_SNIPPER_CONFIG = os.path.expanduser('~/.snipperrc')
     help='Don\'t colorize output',
 )
 @click.pass_context
-def cli(context, config_file, no_color, **kwargs):
+def cli(ctx, config_file, no_color, **kwargs):
 
     if not os.path.exists(config_file):
         print('Configuration file not found. Plase give me your settings.')
@@ -63,7 +63,7 @@ def cli(context, config_file, no_color, **kwargs):
     if not config.has_option('snipper', 'password') and os.environ.get('SNIPPER_PASSWORD'):
         config.set('snipper', 'password', os.environ['SNIPPER_PASSWORD'])
 
-    context.obj = config
+    ctx.obj = config
 
 
 def _init_snipper(config_file, colorize):
@@ -109,9 +109,9 @@ def _init_snipper(config_file, colorize):
     help='Provides the most detailed listing'
 )
 @click.pass_context
-def list_snippets(context, verbose):
+def list_snippets(ctx, verbose):
     """List local snippets"""
-    config = context.obj
+    config = ctx.obj
     colorize = config.getboolean('snipper', 'colorize')
 
     data = utils.read_metadata(config)
@@ -148,7 +148,7 @@ def pull_local_snippets(context):
 
     Pull changes of existing snippets and clone new snippets.
     """
-    config = context.obj
+    config = ctx.obj
     colorize = config.getboolean('snipper', 'colorize')
 
     api = SnippetApi(config)
@@ -170,22 +170,22 @@ def pull_local_snippets(context):
     utils.secho(colorize, 'Local snippets updated and new snippets downloaded from Bitbucket', fg='blue')
 
 
-def _edit_snippet_file(context, param, relative_path):
+def _edit_snippet_file(ctx, param, relative_path):
     """Open snippet file with default editor"""
-    config = context.obj
+    config = ctx.obj
     colorize = config.getboolean('snipper', 'colorize')
 
-    if not relative_path or context.resilient_parsing:
+    if not relative_path or ctx.resilient_parsing:
         return
 
-    file_path = os.path.join(context.obj.get('snipper', 'snippet_dir'), relative_path)
+    file_path = os.path.join(config.get('snipper', 'snippet_dir'), relative_path)
 
     if os.path.exists(file_path):
         click.edit(filename=file_path)
     else:
         utils.secho(colorize, 'File not exist. Exiting ...', fg='red')
 
-    context.exit()
+    ctx.exit()
 
 
 @cli.command(name='edit', help='Edit snippet file')
@@ -197,8 +197,8 @@ def _edit_snippet_file(context, param, relative_path):
     callback=_edit_snippet_file
 )
 @click.pass_context
-def edit_snippet_file(context, fuzzy, file_path=None):
-    config = context.obj
+def edit_snippet_file(ctx, fuzzy, file_path=None):
+    config = ctx.obj
     colorize = config.getboolean('snipper', 'colorize')
 
     utils.secho(colorize, 'Select a file for edit with fuzzy search.', fg="yellow")
@@ -234,9 +234,9 @@ def edit_snippet_file(context, fuzzy, file_path=None):
 @click.option('--filename', '-f', help='Used when content read from STDIN or clipboard')
 @click.argument('files', nargs=-1, type=click.Path(exists=True))
 @click.pass_context
-def new_snippet(context, files, **kwargs):
+def new_snippet(ctx, files, **kwargs):
 
-    config = context.obj
+    config = ctx.obj
     colorize = config.getboolean('snipper', 'colorize')
     content_list = []
 
@@ -331,8 +331,8 @@ def new_snippet(context, files, **kwargs):
 @cli.command(name='sync', help='Sync snippets with Bitbucket')
 @click.argument('snippet_id', nargs=1, required=False)
 @click.pass_context
-def sync_snippets(context, **kwargs):
-    config = context.obj
+def sync_snippets(ctx, **kwargs):
+    config = ctx.obj
     colorize = config.getboolean('snipper', 'colorize')
     snippet_id = kwargs.get('snippet_id')
 
@@ -376,8 +376,8 @@ def sync_snippets(context, **kwargs):
 @click.option('--paste', '-P', help='Read content from clipboard', is_flag=True)
 @click.option('--copy-url', '-c', help='Copy snippet URL to clipboard', is_flag=True)
 @click.pass_context
-def add_to_snippet(context, files, **kwargs):
-    config = context.obj
+def add_to_snippet(ctx, files, **kwargs):
+    config = ctx.obj
     colorize = config.getboolean('snipper', 'colorize')
     selected_snippet_dirname = None
 
