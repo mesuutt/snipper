@@ -68,12 +68,10 @@ class Snippet(object):
         return [f for f in os.listdir(self.repo_path) if os.path.isfile(os.path.join(self.repo_path, f))]
 
     def clone(self):
-        metadata = self.data
         repo_parent = os.path.dirname(self.repo_path)
-
         clone_to = os.path.join(repo_parent, self.data['id'])
 
-        if metadata['title']:
+        if self.data['title']:
             # Using title for readablity(<slugified snippet_title>-<snippet_id>)
             clone_to = os.path.join(repo_parent, self.get_slugified_dirname())
 
