@@ -1,6 +1,6 @@
 [snipper]
-# username =
-# password =
+username = mesuutt
+password = changeMe
 default_filename=file.md
 verbose=detailed
 auto_push=True
