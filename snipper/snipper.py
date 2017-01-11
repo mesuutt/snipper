@@ -23,7 +23,7 @@ DEFAULT_SNIPPER_CONFIG = os.path.expanduser('~/.snipperrc')
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-    '--config', '-C',
+    '--config', '-C', 'config_file',
     default=DEFAULT_SNIPPER_CONFIG,
     type=click.Path(),
     help='Config file path: Default: {}'.format(DEFAULT_SNIPPER_CONFIG)
@@ -143,7 +143,7 @@ def list_snippets(ctx, verbose):
 
 @cli.command(name='pull')
 @click.pass_context
-def pull_local_snippets(context):
+def pull_local_snippets(ctx):
     """Update local snippets from Bitbucket.
 
     Pull changes of existing snippets and clone new snippets.
