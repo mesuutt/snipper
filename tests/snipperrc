@@ -1,6 +1,6 @@
 [snipper]
-username = mesuutt
-password = changeMe
+username = py-snipper
+password = blablabla
 default_filename=file.md
 verbose=detailed
 auto_push=yes
