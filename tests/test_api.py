@@ -18,15 +18,15 @@ class BitbucketApiTestCase(unittest.TestCase):
 
     def setUp(self):
         self.api = SnippetApi(config)
+        self.username = config.get('snipper', 'username')
 
     def test_build_endpoint(self):
-        url = self.api.build_endpoint('mesuutt')
-        return self.assertEqual(url, os.path.join(SnippetApi.base_url, 'mesuutt'))
+        url = self.api.build_endpoint(self.username)
+        return self.assertEqual(url, os.path.join(SnippetApi.base_url, self.username))
 
     @httpretty.activate
     def test_get_snippet_metadata(self):
-
-        url = self.api.build_endpoint('mesuutt')
+        url = self.api.build_endpoint(self.username)
 
         with open(os.path.join(TEST_DIR, 'example_metadata.json'), 'r') as file:
             example_metadata_content = file.read()
@@ -52,7 +52,6 @@ class BitbucketApiTestCase(unittest.TestCase):
     def test_create_snippet(self):
         file_list = [('file', ('file.txt', 'content',),)]
         payload = {'title': 'title', 'scm': 'git', 'is_private': True}
-        print(self.api.base_url)
 
         httpretty.register_uri(
             httpretty.POST,
