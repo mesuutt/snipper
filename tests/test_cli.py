@@ -1,13 +1,9 @@
 import os
-import io
-import json
-import sys
 import unittest
 import configparser
 import tempfile
 import shutil
 
-import click
 from click.testing import CliRunner
 
 from snipper import snipper
@@ -28,7 +24,7 @@ user_metadata_file = os.path.join(snippet_parent_dir, 'mesuutt.json')
 shutil.copyfile(os.path.join(TEST_DIR, 'example_metadata.json'), user_metadata_file)
 
 
-class UtilsTestCase(unittest.TestCase):
+class CommandLineArgumentsTestCase(unittest.TestCase):
 
     def test_listing_snippets(self):
         runner = CliRunner()
@@ -43,8 +39,7 @@ class UtilsTestCase(unittest.TestCase):
         if not config.has_option('snipper', 'password') and not os.environ.get('SNIPPER_PASSWORD'):
             self.assertTrue(False, 'Missing password setting. Set SNIPPER_PASSWORD env variable or add password in tests/snipperrc')
 
-        self.config.set('snipper', 'password', os.environ.get('SNIPPER_PASSWORD'))
-
+        config.set('snipper', 'password', os.environ.get('SNIPPER_PASSWORD'))
 
     def test_pulling_snippets(self):
         self.set_default_username_password()
@@ -63,4 +58,3 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         # Burda metadata filei da kontrol et. Ayrica olusturulan dosyayida kontrol et.
-
