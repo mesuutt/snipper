@@ -50,7 +50,8 @@ class UtilsTestCase(unittest.TestCase):
     def test_reading_metadata(self):
         """Test reading metadata file"""
         # Copy example metadata file and test on copied file
-        user_metadata_file = os.path.join(snippet_parent_dir, 'mesuutt.json')
+        username = config.get('snipper', 'username')
+        user_metadata_file = os.path.join(snippet_parent_dir, '{}.json'.format(username))
         shutil.copy(os.path.join(TEST_DIR, 'example_metadata.json'), user_metadata_file)
 
         # Get without owner specified
@@ -58,13 +59,15 @@ class UtilsTestCase(unittest.TestCase):
         self.assertIsNotNone(data)
 
         # Get with owner specified
-        data = utils.read_metadata(config, owner='mesuutt')
+        data = utils.read_metadata(config, owner=username)
         self.assertIsNotNone(data)
 
     def test_updating_metadata(self):
         """Test reading metadata file"""
         # Copy example metadata file and test on copied file
-        user_metadata_file = os.path.join(snippet_parent_dir, 'mesuutt.json')
+        username = config.get('snipper', 'username')
+        user_metadata_file = os.path.join(snippet_parent_dir, '{}.json'.format(username))
+
         shutil.copy(os.path.join(TEST_DIR, 'example_metadata.json'), user_metadata_file)
 
         with open(user_metadata_file, 'r') as file:
@@ -74,12 +77,12 @@ class UtilsTestCase(unittest.TestCase):
 
         # Test without owner
         utils.update_metadata(config, data)
-        data = utils.read_metadata(config, owner='mesuutt')
+        data = utils.read_metadata(config, owner=username)
         self.assertIsNotNone(data['id'], 'my_fake_id')
 
         # Test with owner
-        utils.update_metadata(config, data, owner='mesuutt')
-        data = utils.read_metadata(config, 'mesuutt')
+        utils.update_metadata(config, data, owner=username)
+        data = utils.read_metadata(config, username)
 
         self.assertIsNotNone(data['id'], 'my_fake_id')
 
