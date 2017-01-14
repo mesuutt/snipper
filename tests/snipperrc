@@ -3,7 +3,7 @@ username = mesuutt
 password = changeMe
 default_filename=file.md
 verbose=detailed
-auto_push=True
+auto_push=yes
 colorize=on
 protocol=ssh
 
