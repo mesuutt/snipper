@@ -1,24 +1,18 @@
-'''
-Setup script.
-To install snipper:
-[sudo] python setup.py install
-'''
-
 import os
 from setuptools import setup
+
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-# Dynamically calculate the version based on snipper.VERSION.
 setup(
     name='snipper',
     version=__import__('snipper').__version__,
     url='https://github.com/mesuutt/snipper',
     author='Mesut Tasci',
     author_email='mst~dot~tasci~at~gmail~dot~com',
-    description=('A command-line interface for creating, listing, and editing Bitbucket Snippets.'),
+    description=('A command-line tool for creating, listing, and editing Bitbucket snippets.'),
     license='MIT',
     test_suite='tests',
     keywords="bitbucket snippet gist commandline cli",
@@ -39,7 +33,10 @@ setup(
         'License :: OSI Approved :: MIT License',
         "Environment :: Console",
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 2.7',
+        'Intended Audience :: Developers',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: POSIX',
     ],
 )
