@@ -1,5 +1,7 @@
-Manage Bitbucket snippets from command line easy
+snipper
 =================================================
+
+Manage Bitbucket snippets from command line easy
 
 
 ## Synopsis
@@ -30,7 +32,7 @@ You can install snipper shown as below:
 
 ### Creating new snippet
 
-Create a snippet from the contents of `foo.py` just:
+Create a snippet from the contents of `foo.py` by just the following:
 
     snipper new foo.py
 
@@ -39,78 +41,79 @@ Create snippet from multiple files:
     snipper new a b c
     snipper new *.py
 
-‌By default it reads from STDIN, and you can set a filename with `-f`.
+‌By default, it reads from STDIN, and you can set a filename with `-f` parameter.
 
     snipper new -f test.py < a.py
 
-‌Alternatively, you can just paste from the clipboard:
+Alternatively, you can just paste from the clipboard:
 
     snipper new -P
 
-snipper creates snippets private by default. ‌Use `-p` to make the gist public:
+Snipper creates snippets as private by default. ‌Use `-p` to make the snippet public:
 
     snipper new -p a.py
 
-‌Use `-t` to add title to snippet:
+Use `-t` parameter to add title to snippet:
 
     snipper new -t "Postgresql notes" postgres.md
 
-‌If you'd like to copy the resulting URL to your clipboard, use `-c`.
+If you'd like to copy the resulting URL to your clipboard, use `-c` parameter.
 
     snipper new -c a.py
 
-And you can just ask snipper to open created snippet on a browser tab with `-o`.
+And you can just ask snipper to open a created snippet on a browser tab with `-o`.
 
     snipper new -o < a.md
 
 ### Adding files to existing snippet
 
-You can add existing file to snippet:
+You can add existing file to a snippet:
 
     snipper add [snippetId] a.py
 
-If you don't give snippet id to `add` command, snipper open an fuzzy snippet selection prompt
-which snippet to add file to.
+If you don't give snippet id to `add` command, snipper opens a fuzzy snippet selection prompt
+in order to add file to the selected snippet.
 
     snipper add foo.py
 
-Also if you don't give a file to snipper, snipper opens a new file with your default editor.
-After you save and close editor new file will be added to selected snippet.
+Also if you don't add a file to snipper as parameter, snipper opens a new file with your default editor.
+
+After you save and close the editor, new file will be added to selected snippet.
 
     snipper add
 
-Also you can read content from clipboard(`-P`) or STDIN with redirecting output to snipper.
+Also you can read content from clipboard by `-P` or by redirecting output from STDIN to snipper.
 
     cat *.txt | snipper add -f foo.txt
     snipper add -P
 
-If you didn't specified file name with `-f` option, `default_filename` config using as the file name.
+If you didn't specified any file name with `-f` option, `default_filename` config will be used as the filename.
+
 
 ### Editing snippet files
 
-You should give path of snippet file for editing.
+You should give the path of a snippet file for editing.
+
     snipper edit
 
-If you don't give a path, snipper opens a prompt for file selection with
-fuzzy search:
+If you don't give any path, snipper opens a fuzzy search prompt for file selection:
 
     snipper edit Ahg2l/notes.md
 
 
 ### Pulling/Syncing snippets
 
-If you make changes snippets on bitbucket.org website, you can get new changes from
-Bitbucket with `pull` command
+If you make changes on snippets at bitbucket.org website, you can get these changes from Bitbucket with `pull` command
 
     snipper pull
 
-If you disabled auto pushing feature from config file you should sync snippets manually.
-`sync` pushes unpushed local changes to Bitbucket and pull new changes from Bitbucket if exist:
+If you disabled auto pushing feature from config file, you should sync snippets manually.
+`sync` pushes unpushed local changes to Bitbucket and pull the new changes from Bitbucket if any exist:
 
     snipper sync
 
-‌See `snipper --help` for more detail.
-Also you can get help for specified command as below:
+See `snipper --help` for more detail.
+Also you can get help for any specified command as below:
 
     snippet new --help
 
@@ -118,17 +121,16 @@ Also you can get help for specified command as below:
 
 ## Login
 
-Bitbucket does not support token authenticaion for users for now. But you can
-create an app password permitted only to snippets on Bitbucket settings page.
-Anybody can't login or access to your bitbucket data with given username/password
-except make request to Bitbucket API for youur snippets.
+Bitbucket does not support token authentication for users now, but you can
+create an app password that is permitted only to snippets on Bitbucket settings page.
+Nobody cannot login or access to your bitbucket data with given username and password,
+except making request to Bitbucket API for your snippets.
 
-Bitbucket snippets are git or mercurial repositories. So while pulling changes from Bitbucket or pushing changes to Bitbucket requires to public key authentication. So you should use ssh-agent for not typing password while pull/push every snippet.
+Bitbucket snippets are git or mercurial repositories. So, pulling changes from Bitbucket or pushing changes to Bitbucket requires public key authentication. Therefore, you can use ssh-agent not to enter password at every snippet pull/push.
 
 ## Configuration
 
-When you run snipper first time snipper create a config file in your home directory by default.
-
+When you run snipper for the first time, by default snipper creates a config file in your home directory.
 
 Config file example with defaults:
 
@@ -143,27 +145,25 @@ colorize=on
 
 **username**, **password**: Using for authenticating to Bitbucket API
 
-**default_filename** : If you don't specified filename with `-f` parementer while creating new snippet or adding new files to snippet this name using as file name.
+**default_filename** : If you did not specify filename with `-f` parameter,  this name will be used as filename while creating a new snippet or adding new files to a snippet.
 
-**auto_push** : If this option enabled, snipper pushes changes after `new`,`add` and `edit` command executed.
+**auto_push** : If this option is enabled, snipper pushes changes after `new`,`add` and `edit` commands are executed. Otherwise, you need to push the changes manually.
 
-**colorize** : Snipper colorizing output by default. But you can disable colorizing in config file. Also you can use `--no-color` option with any snipper command.
+**colorize** : By default, snipper colorizes the output, but you can disable colorizing in config file. Also, you can use `--no-color` option with any snipper command.
 
-‌If you want to keep snipper config file another location, you can use `-C`
-to be the default when you use the snipper executable, add an
-alias to your `~/.bashrc` (or equivalent). For example:
+If you want to keep snipper config file at another location different from home directory, you can use `-C` parameter to be the default location. Also you can add an  alias to your `~/.bashrc` (or equivalent). For example:
 
     alias sp='snipper -C ~/dotfiles/snipperrc'
 
 
 ### Environment variables
 
-`SNIPPER_USERNAME`,  `SNIPPER_PASSWORD`: Use this username and password instad reading from config file.
+`SNIPPER_USERNAME`,  `SNIPPER_PASSWORD`: Use this username and password instead of reading from config file every time.
 
-`HTTP_PROXY`, `HTTPS_PROXY`:  If you need to use an proxy to access the internet, use one of these environment variables and snipper will use it.
+`HTTP_PROXY`, `HTTPS_PROXY`:  If you need to use a proxy to access the internet, use one of these environment variables and snipper will use it.
 
-`BROWSER` : Use specified browser for opening snippets in browser.
+`BROWSER` : Use specified browser for opening snippets in a browser.
 
 ------
-‌
-Licensed under the [MIT license](http://opensource.org/licenses/MIT). Bug-reports, and pull requests are welcome.
+
+Licensed under the [MIT license](http://opensource.org/licenses/MIT). Bug-reports, and pull requests
