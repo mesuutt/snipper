@@ -16,7 +16,7 @@ setup(
     license='MIT',
     test_suite='tests',
     keywords="bitbucket snippet gist commandline cli",
-    long_description=read('README.md'),
+    long_description=read('README.rst'),
     entry_points={
         'console_scripts': [
             'snipper = snipper.snipper:cli',
@@ -24,10 +24,10 @@ setup(
     },
     packages=['snipper'],
     install_requires=[
-        'requests',
-        'click',
-        'prompt_toolkit',
-        'pyperclip',
+        'requests>=2.12',
+        'click>=6.7',
+        'prompt_toolkit>=1.0',
+        'pyperclip>=1.5',
     ],
     classifiers=[
         'License :: OSI Approved :: MIT License',
