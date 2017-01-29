@@ -11,7 +11,7 @@ setup(
     version=__import__('snipper').__version__,
     url='https://github.com/mesuutt/snipper',
     author='Mesut Tasci',
-    author_email='mst~dot~tasci~at~gmail~dot~com',
+    author_email='mst.tasci@gmail.com',
     description=('A command-line tool for creating, listing, and editing Bitbucket snippets.'),
     license='MIT',
     test_suite='tests',
