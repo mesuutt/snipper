@@ -4,6 +4,9 @@ snipper
 Manage Bitbucket snippets from command line easy
 -------------------------------------------------
 
+.. image:: https://img.shields.io/pypi/l/snipper.svg
+    :target: https://pypi.python.org/pypi/snipper
+
 Usage
 --------
 
