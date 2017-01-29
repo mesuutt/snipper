@@ -1,9 +1,10 @@
 snipper
-=======
+================================================
 
 Manage Bitbucket snippets from command line easy
+-------------------------------------------------
 
-Synopsis
+Usage
 --------
 
 .. code:: bash
@@ -24,13 +25,12 @@ Synopsis
       sync  Sync snippets with Bitbucket
 
 Installation
-------------
-
-You can install snipper shown as below:
+~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    python setup.py install
+    pip install snipper
+
 
 Creating new snippet
 ~~~~~~~~~~~~~~~~~~~~
@@ -237,4 +237,3 @@ use it.
 --------------
 
 Licensed under the `MIT license <http://opensource.org/licenses/MIT>`__.
-Bug-reports, and pull requests
