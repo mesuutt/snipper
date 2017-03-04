@@ -162,7 +162,7 @@ these changes from Bitbucket with ``pull`` command
 
 If you disabled auto pushing feature from config file, you should sync
 snippets manually. ``sync`` pushes unpushed local changes to Bitbucket
-and pull the new changes from Bitbucket if any exist:
+and pull the new changes from Bitbucket if any exist.
 
 ::
 
@@ -242,6 +242,16 @@ the internet, use one of these environment variables and snipper will
 use it.
 
 ``BROWSER`` : Use specified browser for opening snippets in a browser.
+
+
+Requirements
+~~~~~~~~~~~~~~~~~~~~~
+
+  - Git or Mercurial: Each Bitbucket snippet is a git or mercurial repository. So at least one of git or mercurial must be installed.
+  - requests
+  - prompt-toolkit
+  - click
+  - pyperclip
 
 --------------
 
