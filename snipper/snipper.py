@@ -287,7 +287,7 @@ def new_snippet(ctx, files, **kwargs):
                 sys.exit(1)
 
         if not title:
-            # if title not specified, make first 50 charecters of first line
+            # if title not specified, pick first 50 charecters of file as title.
             title = content.split('\n')[0][:50]
 
         content_list.append(('file', (filename, content)))
@@ -338,12 +338,16 @@ def sync_snippets(ctx, **kwargs):
 
     api = SnippetApi(config)
 
-    utils.secho(colorize, 'Downloading snippet meta data from Bitbucket', fg='green')
+    utils.secho(colorize, ':: Waiting for download changes from Bitbucket...', fg='blue')
+
     data = api.get_all()
 
     utils.update_metadata(config, data)
 
+    pulling_process_count = 0
+    cloning_process_count = 0
     snippet = None
+
     for item in data['values']:
 
         if snippet_id and item['id'] != snippet_id:
@@ -354,18 +358,23 @@ def sync_snippets(ctx, **kwargs):
 
         if not snippet.is_exists():
             # If snippet not exist in local, clone snippet
-            utils.secho(colorize, '[{}] {}'.format(item['id'], item.get('title', 'Untitled snippet')), fg='blue')
+            cloning_process_count += 1
             snippet.clone()
         else:
             # Commit changes if exist before pull new changes from remote.
             snippet.commit()
-
-            utils.secho(colorize, '[{}]: Syncing snippet...'.format(item['id']), fg='blue')
             snippet.sync()
             snippet.update_dir_name()
+            pulling_process_count += 1
 
     if snippet_id and not snippet:
         utils.secho(colorize, 'Snippet with given id not found: {}'.format(snippet_id), fg='yellow')
+
+    if pulling_process_count:
+        utils.secho(colorize, ':: Waiting for {} processes to finish sync snippets...'.format(pulling_process_count), fg='blue')
+
+    if cloning_process_count:
+        utils.secho(colorize, ':: Waiting for {} processes to finish cloning snippets...'.format(cloning_process_count), fg='blue')
 
 
 @cli.command(name='add', help='Add file[s] to snippet')
