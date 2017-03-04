@@ -247,11 +247,11 @@ use it.
 Requirements
 ~~~~~~~~~~~~~~~~~~~~~
 
-  - Git or Mercurial: Each Bitbucket snippet is a git or mercurial repository. So at least one of git or mercurial must be installed.
-  - requests
-  - prompt-toolkit
-  - click
-  - pyperclip
+- Git or Mercurial: Each Bitbucket snippet is a git or mercurial repository. So at least one of git or mercurial must be installed.
+- requests
+- prompt-toolkit
+- click
+- pyperclip
 
 --------------
 
