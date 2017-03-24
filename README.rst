@@ -13,6 +13,16 @@ Manage Bitbucket snippets from command line easy
 .. image:: https://img.shields.io/pypi/l/snipper.svg
     :target: https://pypi.python.org/pypi/snipper
 
+### Why?
+
+I created snipper because I prefer Bitbucket snippet instead of Github gist. So why?
+
+Because gists are [secret but not private](https://help.github.com/articles/about-gists/#secret-gists).
+So anyone can discover your secret gists by brute-forcing url or finding url of your gist from somewhere.
+
+### Snipper
+==================
+
 Usage
 --------
 
