@@ -440,6 +440,7 @@ def add_to_snippet(ctx, files, **kwargs):
 
     # if filename is not specified, it is exist everytime as None
     # so kwargs.get('filename', default_val) not working
+
     filename = kwargs.get('filename')
     if not filename:
         filename = config.get('snipper', 'default_filename')
@@ -464,7 +465,7 @@ def add_to_snippet(ctx, files, **kwargs):
                 utils.secho(colorize, 'File created from clipboard content: {}'.format(file_path), fg='blue')
         else:
             utils.secho(colorize, 'Clipboard is empty, ignoring', fg='yellow')
-    else:
+    elif not files:
         # Open editor
         new_file_content = click.edit()
         if new_file_content is None:
@@ -481,8 +482,7 @@ def add_to_snippet(ctx, files, **kwargs):
             utils.secho(colorize, 'File created: {}'.format(file_path), fg='blue')
 
     for file in files:
-        # Copy given files to snippet
-        utils.secho(colorize, '{} added to snippet'.format(file), fg='blue')
+        # Add given files to the snippet
         shutil.copy(file, snippet_dir)
         utils.secho(colorize, 'File added: {}'.format(file), fg='blue')
 
