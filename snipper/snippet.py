@@ -65,6 +65,9 @@ class Snippet(object):
 
     def get_files(self):
         """Get files in local snippet directory"""
+        if not os.path.exists(self.repo_path):
+            return []
+
         return [f for f in os.listdir(self.repo_path) if os.path.isfile(os.path.join(self.repo_path, f))]
 
     def clone(self):

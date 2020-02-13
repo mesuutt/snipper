@@ -113,7 +113,6 @@ def list_snippets(ctx, verbose):
     """List local snippets"""
     config = ctx.obj
     colorize = config.getboolean('snipper', 'colorize')
-
     data = utils.read_metadata(config)
 
     long_file_list = []
