@@ -401,7 +401,11 @@ def add_to_snippet(ctx, files, **kwargs):
     if not selected_snippet_dirname:
         selected_snippet_dirname = kwargs.get('to', '')
 
-    snippet_dir_path_regex = re.search('(?:.*)?([\w]{5})$', selected_snippet_dirname)
+    ## older snippets IDs were 5-char and newer IDs are 6-char
+    snippet_dir_path_regex = re.search('(?:.*)?([\w]{6})$', selected_snippet_dirname)
+    if not snippet_dir_path_regex:
+        snippet_dir_path_regex = re.search('(?:.*)?([\w]{5})$', selected_snippet_dirname)
+
     if not snippet_dir_path_regex:
         utils.secho(colorize, 'Give me path of snippet directory or snippet id', fg='red', err=True)
         utils.secho(colorize, 'Existing snippet directories:', fg='blue')
