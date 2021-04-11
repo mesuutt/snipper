@@ -65,6 +65,14 @@ def cli(ctx, config_file, no_color, **kwargs):
 
     ctx.obj = config
 
+    # Sync snippets if not synced before
+    if not os.path.exists(utils.get_owner_metadata_path(config)):
+        if not os.path.exists(config.get('snipper', 'snippet_dir')):
+            os.makedirs(config.get('snipper', 'snippet_dir'))
+
+        utils.secho(not no_color, "Syncing snippets...", fg='green')
+        _sync_snippets(config)
+
 
 def _init_snipper(config_file, colorize):
 
@@ -98,6 +106,52 @@ def _init_snipper(config_file, colorize):
     config.set('snipper', 'colorize', 'yes' if colorize else 'no')
 
     config.write(open(config_file, 'w'))
+
+
+def _sync_snippets(config, **kwargs):
+    colorize = config.getboolean('snipper', 'colorize')
+    snippet_id = kwargs.get('snippet_id')
+
+    api = SnippetApi(config)
+
+    utils.secho(colorize, ':: Waiting for download changes from Bitbucket...', fg='blue')
+
+    data = api.get_all()
+
+    utils.update_metadata(config, data)
+
+    pulling_process_count = 0
+    cloning_process_count = 0
+    snippet = None
+
+    for item in data['values']:
+
+        if snippet_id and item['id'] != snippet_id:
+            continue
+
+        # Show files in snippet
+        snippet = Snippet(config, item)
+
+        if not snippet.is_exists():
+            # If snippet not exist in local, clone snippet
+            cloning_process_count += 1
+            snippet.clone()
+        else:
+            # Commit changes if exist before pull new changes from remote.
+            snippet.commit()
+            snippet.sync()
+            snippet.update_dir_name()
+            pulling_process_count += 1
+
+    if snippet_id and not snippet:
+        utils.secho(colorize, 'Snippet with given id not found: {}'.format(snippet_id), fg='yellow')
+
+    if pulling_process_count:
+        utils.secho(colorize, ':: Waiting for {} processes to finish sync snippets...'.format(pulling_process_count), fg='blue')
+
+    if cloning_process_count:
+        utils.secho(colorize, ':: Waiting for {} processes to finish cloning snippets...'.format(cloning_process_count), fg='blue')
+
 
 
 @cli.command(name='ls')
@@ -332,48 +386,7 @@ def new_snippet(ctx, files, **kwargs):
 @click.pass_context
 def sync_snippets(ctx, **kwargs):
     config = ctx.obj
-    colorize = config.getboolean('snipper', 'colorize')
-    snippet_id = kwargs.get('snippet_id')
-
-    api = SnippetApi(config)
-
-    utils.secho(colorize, ':: Waiting for download changes from Bitbucket...', fg='blue')
-
-    data = api.get_all()
-
-    utils.update_metadata(config, data)
-
-    pulling_process_count = 0
-    cloning_process_count = 0
-    snippet = None
-
-    for item in data['values']:
-
-        if snippet_id and item['id'] != snippet_id:
-            continue
-
-        # Show files in snippet
-        snippet = Snippet(config, item)
-
-        if not snippet.is_exists():
-            # If snippet not exist in local, clone snippet
-            cloning_process_count += 1
-            snippet.clone()
-        else:
-            # Commit changes if exist before pull new changes from remote.
-            snippet.commit()
-            snippet.sync()
-            snippet.update_dir_name()
-            pulling_process_count += 1
-
-    if snippet_id and not snippet:
-        utils.secho(colorize, 'Snippet with given id not found: {}'.format(snippet_id), fg='yellow')
-
-    if pulling_process_count:
-        utils.secho(colorize, ':: Waiting for {} processes to finish sync snippets...'.format(pulling_process_count), fg='blue')
-
-    if cloning_process_count:
-        utils.secho(colorize, ':: Waiting for {} processes to finish cloning snippets...'.format(cloning_process_count), fg='blue')
+    _sync_snippets(config, **kwargs)
 
 
 @cli.command(name='add', help='Add file[s] to snippet')
