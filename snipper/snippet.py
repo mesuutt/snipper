@@ -94,7 +94,7 @@ class Snippet(object):
             u'Title     : {}'.format(self.data['title']),
             u'Is private: {}'.format("Yes" if self.data['is_private'] else "No"),
             u'Url       : {}'.format(self.data['links']['html']['href']),
-            u'Owner     : {}'.format(self.data['owner']['username']),
+            u'Owner     : {}'.format(self.data['owner']['display_name']),
             u'Path      : {}'.format(self.get_path()),
         ])
 
