@@ -23,9 +23,6 @@ config.set('snipper', 'snippet_dir', snippet_parent_dir)
 with open(os.path.join(TEST_DIR, 'example_git_snippet_data.json'), 'r') as snippet_file:
     git_snippet_data = json.loads(snippet_file.read())
 
-with open(os.path.join(TEST_DIR, 'example_mercurial_snippet_data.json'), 'r') as snippet_file:
-    mercurial_snippet_data = json.loads(snippet_file.read())
-
 
 class SnippetTestMixin:
 
@@ -104,7 +101,7 @@ class GitSnippetTestCase(SnippetTestMixin, unittest.TestCase):
         self.data = deepcopy(git_snippet_data)
         self.snippet = Snippet(config, self.data)
 
-    def test_aaa_cloning_snippet(self):
+    def test_clone_snippet(self):
         """Test cloning snippet
 
         test method name contains _aaa_ for execute before another tests
@@ -114,22 +111,3 @@ class GitSnippetTestCase(SnippetTestMixin, unittest.TestCase):
         event.wait()
 
         self.assertTrue(event.stderr.read().startswith('Cloning into'))
-
-
-class MercurialSnippetTestCase(SnippetTestMixin, unittest.TestCase):
-
-    def setUp(self):
-        self.snippet_parent_dir = snippet_parent_dir
-        self.data = deepcopy(mercurial_snippet_data)
-        self.snippet = Snippet(config, self.data)
-
-    def test_aaa_cloning_snippet(self):
-        """Test cloning snippet
-
-        test method name contains _aaa_ for execute before another tests
-        because some tests dependent to repo exist in file system.
-        """
-        event = self.snippet.clone()
-        event.wait()
-
-        self.assertEqual(event.stderr.read(), '')

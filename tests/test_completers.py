@@ -29,26 +29,19 @@ snippet1 = Snippet(config, deepcopy(git_snippet_data))
 event = snippet1.clone()
 event.wait()
 
-with open(os.path.join(TEST_DIR, 'example_mercurial_snippet_data.json'), 'r') as snippet_file:
-    mercurial_snippet_data = json.loads(snippet_file.read())
-
-snippet2 = Snippet(config, deepcopy(mercurial_snippet_data))
-event = snippet2.clone()
-event.wait()
-
 
 class PromptToolkitCompleterTestCase(unittest.TestCase):
 
     def test_fuzzy_snippet_dir_finder(self):
         """Test snippet directory fuzzy finder completer"""
         completer = SnippetDirCompleter(config)
-        matched_dirs = completer.fuzzyfinder('testhg', completer.collection)
-        self.assertEqual(matched_dirs, ['test-snippet-hg--y4yKd'])
+        matched_dirs = completer.fuzzyfinder('testgit', completer.collection)
+        self.assertEqual(matched_dirs, ['test-snippet-git--kBkKj'])
 
     def test_fuzzy_snippet_file_finder(self):
         """Test snippet file fuzzy finder completer"""
         completer = SnippetFileCompleter(config)
-        matched_files = completer.fuzzyfinder('hgfile', completer.collection)
-        should_match = ['test-snippet-hg--y4yKd/file.txt', 'test-snippet-hg--y4yKd/hg_file1.txt']
+        matched_files = completer.fuzzyfinder('gitfile', completer.collection)
+        should_match = ['test-snippet-git--kBkKj/file.txt']
 
         self.assertEqual(matched_files, should_match)
